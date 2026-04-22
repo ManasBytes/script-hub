@@ -1,0 +1,167 @@
+QMainWindow, #appRoot {
+    background: #0f1724;
+    color: #e6eefc;
+    font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+#navbar {
+    background: qlineargradient(
+        x1: 0, y1: 0, x2: 1, y2: 0,
+        stop: 0 #16263d,
+        stop: 1 #1c3354
+    );
+    border-bottom: 1px solid #2f4f73;
+    min-height: 72px;
+    max-height: 72px;
+}
+
+#brandTitle {
+    color: #f7fbff;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+#navStatus {
+    color: #d1e3ff;
+    background: #234266;
+    border: 1px solid #335b88;
+    border-radius: 12px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#topTabButton {
+    background: transparent;
+    color: #d1e3ff;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#topTabButton:hover {
+    background: #1f3655;
+    border: 1px solid #365a83;
+    color: #ffffff;
+}
+
+#topTabButton:checked {
+    background: #2a4f78;
+    border: 1px solid #4b79aa;
+    color: #ffffff;
+}
+
+#sidebarToggleButton {
+    background: #1d3554;
+    color: #f2f8ff;
+    border: 1px solid #3e638d;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 96px;
+}
+
+#sidebarToggleButton:hover {
+    background: #264568;
+}
+
+#sidebar {
+    background: #132238;
+    min-width: 238px;
+    max-width: 238px;
+    border-right: 1px solid #28486b;
+}
+
+#sidebarTitle {
+    color: #eaf4ff;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+#sidebarSubtitle {
+    color: #aac2dd;
+    font-size: 12px;
+    margin-bottom: 6px;
+}
+
+#scriptList {
+    background: #0f1c2f;
+    color: #d8e6f7;
+    border: 1px solid #2b4a6e;
+    border-radius: 10px;
+    padding: 4px;
+    outline: none;
+}
+
+#scriptList::item {
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+#scriptList::item:selected {
+    background: #2a4f78;
+    color: #ffffff;
+}
+
+#navButton {
+    background: transparent;
+    color: #c8d9ef;
+    text-align: left;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#navButton:hover {
+    background: #1f3655;
+    border: 1px solid #365a83;
+    color: #ffffff;
+}
+
+#navButton:checked {
+    background: #2a4f78;
+    border: 1px solid #4b79aa;
+    color: #ffffff;
+}
+
+#mainContent {
+    background: #f3f7fd;
+    color: #1f2f44;
+}
+
+#Home, #ScriptsPage, #HistoryPage {
+    background: #f3f7fd;
+}
+
+#pageTitle {
+    font-size: 30px;
+    color: #18314f;
+    font-weight: 700;
+}
+
+#pageSubtitle {
+    font-size: 15px;
+    color: #4d617a;
+}
+
+#contentCard {
+    background: #ffffff;
+    border: 1px solid #d8e4f4;
+    border-radius: 14px;
+}
+
+#cardTitle {
+    color: #1c3552;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+#cardText {
+    color: #536b86;
+    font-size: 14px;
+}
