@@ -1,7 +1,8 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QStyle
 
+
 class Navbar(QWidget):
-    def __init__(self, switch_page_callback, toggle_sidebar_callback):
+    def __init__(self, switch_page_callback, toggle_sidebar_callback, toggle_theme_callback):
         super().__init__()
         self.setObjectName("navbar")
         layout = QHBoxLayout(self)
@@ -41,10 +42,16 @@ class Navbar(QWidget):
         sidebar_toggle.setToolTip("Toggle script sidebar")
         sidebar_toggle.clicked.connect(toggle_sidebar_callback)
 
+        self.theme_button = QPushButton("Dark Mode")
+        self.theme_button.setObjectName("themeToggleButton")
+        self.theme_button.setToolTip("Switch between light and dark theme")
+        self.theme_button.clicked.connect(toggle_theme_callback)
+
         layout.addWidget(sidebar_toggle)
         layout.addWidget(title)
         layout.addStretch()
         layout.addLayout(tabs_wrap)
+        layout.addWidget(self.theme_button)
         layout.addStretch()
         layout.addWidget(status)
 
@@ -53,3 +60,5 @@ class Navbar(QWidget):
             button.setChecked(i == idx)
         switch_page_callback(idx)
 
+    def set_theme_label(self, text: str) -> None:
+        self.theme_button.setText(text)

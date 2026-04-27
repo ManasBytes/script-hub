@@ -3,17 +3,17 @@ from pathlib import Path
 
 from PyQt6.QtWidgets import (
 	QApplication,
-	QLabel,
+	QHBoxLayout,
 	QMainWindow,
+	QMessageBox,
 	QStackedWidget,
 	QVBoxLayout,
 	QWidget,
-	QHBoxLayout,
-	QFrame,
 )
-from PyQt6.QtCore import Qt
 
 from components import Navbar, Sidebar
+from pages import AddScriptPage, Page, ScriptDetailPage, ScriptViewerPage, ScriptsPage
+from script_manager import ScriptManager
 
 
 def resource_path(relative_path):
@@ -22,65 +22,52 @@ def resource_path(relative_path):
 	return base_path / relative_path
 
 
-class Page(QWidget):
-	def __init__(self, object_name, title_text, subtitle_text):
-		super().__init__()
-		self.setObjectName(object_name)
-
-		layout = QVBoxLayout(self)
-		layout.setContentsMargins(28, 24, 28, 24)
-		layout.setSpacing(14)
-		layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-		title = QLabel(title_text)
-		title.setObjectName("pageTitle")
-
-		subtitle = QLabel(subtitle_text)
-		subtitle.setObjectName("pageSubtitle")
-
-		card = QFrame()
-		card.setObjectName("contentCard")
-		card_layout = QVBoxLayout(card)
-		card_layout.setContentsMargins(18, 16, 18, 16)
-		card_layout.setSpacing(8)
-
-		card_title = QLabel("Starter Section")
-		card_title.setObjectName("cardTitle")
-
-		card_text = QLabel(
-			"This is a clean base shell for your dashboard. "
-			"You can now plug in real data and controls page by page."
-		)
-		card_text.setWordWrap(True)
-		card_text.setObjectName("cardText")
-
-		card_layout.addWidget(card_title)
-		card_layout.addWidget(card_text)
-
-		layout.addWidget(title)
-		layout.addWidget(subtitle)
-		layout.addWidget(card)
-
-
 class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
 		self.setWindowTitle("Scripts Architect")
 		self.setObjectName("appRoot")
+		self._current_theme = "light"
 
 		root = QWidget()
 		root_layout = QVBoxLayout(root)
 		root_layout.setContentsMargins(0, 0, 0, 0)
 		root_layout.setSpacing(0)
 
-		self.navbar = Navbar(self.switch_page, self.toggle_sidebar)
+		self.navbar = Navbar(self.switch_page, self.toggle_sidebar, self.toggle_theme)
 		self.sidebar = Sidebar()
+		self.script_manager = ScriptManager()
 
 		self.pages = QStackedWidget()
 		self.pages.setObjectName("mainContent")
-		self.pages.addWidget(Page("Home", "Home", "Your command center and quick overview."))
-		self.pages.addWidget(Page("ScriptsPage", "Scripts", "Manage and run your script collection."))
-		self.pages.addWidget(Page("HistoryPage", "History", "Track execution logs and previous runs."))
+
+		self.home_page = Page("Home", "Home", "Your command center and quick overview.")
+		self.scripts_page = ScriptsPage()
+		self.history_page = Page("HistoryPage", "History", "Track execution logs and previous runs.")
+		self.add_script_page = AddScriptPage()
+		self.script_detail_page = ScriptDetailPage()
+		self.script_viewer_page = ScriptViewerPage()
+
+		self.scripts_page.add_requested.connect(self.open_add_script_page)
+		self.scripts_page.scripts_changed.connect(self.sidebar.reload)
+		self.scripts_page.view_script_requested.connect(self.open_script_detail)
+		self.sidebar.script_selected.connect(self.open_script_detail)
+		self.add_script_page.back_to_scripts.connect(self.open_scripts_page)
+		self.add_script_page.submit_requested.connect(self.handle_script_submission)
+		self.script_detail_page.back_requested.connect(
+			lambda: self.pages.setCurrentWidget(self.scripts_page)
+		)
+		self.script_detail_page.view_source_requested.connect(self.open_script_viewer)
+		self.script_viewer_page.back_requested.connect(
+			lambda: self.pages.setCurrentWidget(self.script_detail_page)
+		)
+
+		self.pages.addWidget(self.home_page)
+		self.pages.addWidget(self.scripts_page)
+		self.pages.addWidget(self.history_page)
+		self.pages.addWidget(self.add_script_page)
+		self.pages.addWidget(self.script_detail_page)
+		self.pages.addWidget(self.script_viewer_page)
 
 		content_row = QHBoxLayout()
 		content_row.setContentsMargins(0, 0, 0, 0)
@@ -97,15 +84,49 @@ class MainWindow(QMainWindow):
 	def switch_page(self, index):
 		self.pages.setCurrentIndex(index)
 
+	def open_add_script_page(self):
+		self.add_script_page.reset()
+		self.pages.setCurrentWidget(self.add_script_page)
+
+	def open_scripts_page(self):
+		self.scripts_page.reload_scripts()
+		self.pages.setCurrentWidget(self.scripts_page)
+
+	def handle_script_submission(self, payload):
+		try:
+			entry = self.script_manager.save_script(payload)
+		except Exception as error:
+			QMessageBox.critical(self, "Save Failed", f"Could not save script:\n{error}")
+			return
+
+		self.scripts_page.reload_scripts()
+		self.sidebar.reload()
+		self.pages.setCurrentWidget(self.scripts_page)
+		QMessageBox.information(self, "Script Added", f"Registered {entry['name']} successfully.")
+
+	def open_script_detail(self, script_data: dict) -> None:
+		self.script_detail_page.load(script_data)
+		self.pages.setCurrentWidget(self.script_detail_page)
+
+	def open_script_viewer(self, script_data: dict) -> None:
+		self.script_viewer_page.load(script_data)
+		self.pages.setCurrentWidget(self.script_viewer_page)
+
 	def toggle_sidebar(self):
 		self.sidebar.setVisible(not self.sidebar.isVisible())
 
-	def _apply_stylesheet(self):
-		style_path = resource_path(Path("assets") / "style.qss")
+	def toggle_theme(self):
+		self._current_theme = "dark" if self._current_theme == "light" else "light"
+		self._apply_stylesheet()
+		next_label = "Light Mode" if self._current_theme == "dark" else "Dark Mode"
+		self.navbar.set_theme_label(next_label)
 
-		# Fallback for local runs if bundle path is unavailable.
+	def _apply_stylesheet(self):
+		filename = "style_dark.qss" if self._current_theme == "dark" else "style.qss"
+		style_path = resource_path(Path("assets") / filename)
+
 		if not style_path.exists():
-			style_path = Path(__file__).resolve().parent / "assets" / "style.qss"
+			style_path = Path(__file__).resolve().parent / "assets" / filename
 
 		if style_path.exists():
 			self.setStyleSheet(style_path.read_text(encoding="utf-8"))

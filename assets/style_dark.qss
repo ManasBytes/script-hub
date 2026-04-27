@@ -1,30 +1,30 @@
 QMainWindow, #appRoot {
-    background: #0f1724;
-    color: #e6eefc;
+    background: #0a0b10;
+    color: #f5f0ff;
     font-family: "Segoe UI", "Trebuchet MS", sans-serif;
 }
 
 #navbar {
     background: qlineargradient(
         x1: 0, y1: 0, x2: 1, y2: 0,
-        stop: 0 #16263d,
-        stop: 1 #1c3354
+        stop: 0 #0f0720,
+        stop: 1 #170d38
     );
-    border-bottom: 1px solid #2f4f73;
+    border-bottom: 1px solid #3a1f7a;
     min-height: 72px;
     max-height: 72px;
 }
 
 #brandTitle {
-    color: #f7fbff;
+    color: #e8d5ff;
     font-size: 20px;
     font-weight: 700;
 }
 
 #navStatus {
-    color: #d1e3ff;
-    background: #234266;
-    border: 1px solid #335b88;
+    color: #c4b5fd;
+    background: #1e1438;
+    border: 1px solid #4c3a8a;
     border-radius: 12px;
     padding: 5px 12px;
     font-size: 12px;
@@ -33,7 +33,7 @@ QMainWindow, #appRoot {
 
 #topTabButton {
     background: transparent;
-    color: #d1e3ff;
+    color: #c4b5fd;
     border: 1px solid transparent;
     border-radius: 10px;
     padding: 8px 14px;
@@ -42,21 +42,21 @@ QMainWindow, #appRoot {
 }
 
 #topTabButton:hover {
-    background: #1f3655;
-    border: 1px solid #365a83;
-    color: #ffffff;
+    background: #2a1f52;
+    border: 1px solid #5a3f9a;
+    color: #f5f0ff;
 }
 
 #topTabButton:checked {
-    background: #2a4f78;
-    border: 1px solid #4b79aa;
+    background: #7c3aed;
+    border: 1px solid #8b5cf6;
     color: #ffffff;
 }
 
 #sidebarToggleButton {
-    background: #1d3554;
-    color: #f2f8ff;
-    border: 1px solid #3e638d;
+    background: #1e1438;
+    color: #e8d5ff;
+    border: 1px solid #4c3a8a;
     border-radius: 10px;
     padding: 8px 10px;
     font-size: 12px;
@@ -65,13 +65,13 @@ QMainWindow, #appRoot {
 }
 
 #sidebarToggleButton:hover {
-    background: #264568;
+    background: #2a1f52;
 }
 
 #themeToggleButton {
-    background: #1d3554;
-    color: #f2f8ff;
-    border: 1px solid #3e638d;
+    background: #1e1438;
+    color: #c4b5fd;
+    border: 1px solid #4c3a8a;
     border-radius: 10px;
     padding: 8px 14px;
     font-size: 12px;
@@ -79,33 +79,34 @@ QMainWindow, #appRoot {
 }
 
 #themeToggleButton:hover {
-    background: #264568;
-    border-color: #6ba0d4;
+    background: #2a1f52;
+    color: #f5f0ff;
+    border-color: #7c3aed;
 }
 
 #sidebar {
-    background: #132238;
+    background: #0c0a18;
     min-width: 238px;
     max-width: 238px;
-    border-right: 1px solid #28486b;
+    border-right: 1px solid #261c4a;
 }
 
 #sidebarTitle {
-    color: #eaf4ff;
+    color: #e8d5ff;
     font-size: 17px;
     font-weight: 700;
 }
 
 #sidebarSubtitle {
-    color: #aac2dd;
+    color: #7c6fa0;
     font-size: 12px;
     margin-bottom: 6px;
 }
 
 #scriptList {
-    background: #0f1c2f;
-    color: #d8e6f7;
-    border: 1px solid #2b4a6e;
+    background: #0a0b10;
+    color: #c4b5fd;
+    border: 1px solid #2a2045;
     border-radius: 10px;
     padding: 4px;
     outline: none;
@@ -117,13 +118,13 @@ QMainWindow, #appRoot {
 }
 
 #scriptList::item:selected {
-    background: #2a4f78;
+    background: #7c3aed;
     color: #ffffff;
 }
 
 #navButton {
     background: transparent;
-    color: #c8d9ef;
+    color: #c4b5fd;
     text-align: left;
     border: 1px solid transparent;
     border-radius: 10px;
@@ -133,68 +134,68 @@ QMainWindow, #appRoot {
 }
 
 #navButton:hover {
-    background: #1f3655;
-    border: 1px solid #365a83;
-    color: #ffffff;
+    background: #2a1f52;
+    border: 1px solid #5a3f9a;
+    color: #f5f0ff;
 }
 
 #navButton:checked {
-    background: #2a4f78;
-    border: 1px solid #4b79aa;
+    background: #7c3aed;
+    border: 1px solid #8b5cf6;
     color: #ffffff;
 }
 
 #mainContent {
-    background: #eef1f4;
-    color: #1f2f44;
+    background: #0c0e16;
+    color: #f5f0ff;
 }
 
 #Home, #ScriptsPage, #HistoryPage, #AddScriptPage, #ScriptDetailPage {
-    background: #eef1f4;
+    background: #0c0e16;
 }
 
 #pageTitle {
     font-size: 30px;
-    color: #18314f;
+    color: #e8d5ff;
     font-weight: 700;
 }
 
 #pageSubtitle {
     font-size: 15px;
-    color: #4d617a;
+    color: #7c6fa0;
 }
 
 #contentCard {
-    background: #ffffff;
-    border: 1px solid #d7dbe2;
+    background: #12151e;
+    border: 1px solid #2a2045;
     border-radius: 14px;
 }
 
 #cardTitle {
-    color: #1c3552;
+    color: #e8d5ff;
     font-size: 18px;
     font-weight: 700;
 }
 
 #cardText {
-    color: #5a6472;
+    color: #9d86c8;
     font-size: 14px;
 }
 
 #stepIndicator {
-    color: #5a6472;
+    color: #7c6fa0;
     font-size: 13px;
     font-weight: 700;
 }
 
 #wizardBreadcrumbBar {
-    background: #e8ebf0;
-    border: 1px solid #d2d7df;
+    background: #12151e;
+    border: 1px solid #2a2045;
     border-radius: 10px;
 }
 
 #wizardBreadcrumbItem {
-    color: #717a88;
+    color: #7c6fa0;
     background: transparent;
     border-radius: 7px;
     padding: 5px 10px;
@@ -203,79 +204,79 @@ QMainWindow, #appRoot {
 }
 
 #wizardBreadcrumbItem[state="active"] {
-    color: #2e3642;
-    background: #ffffff;
-    border: 1px solid #c9cfd8;
+    color: #e8d5ff;
+    background: #1e1438;
+    border: 1px solid #4c3a8a;
 }
 
 #wizardBreadcrumbItem[state="done"] {
-    color: #2f6f47;
-    background: #e8f6ee;
-    border: 1px solid #badfc7;
+    color: #10b981;
+    background: #0a1f18;
+    border: 1px solid #065f46;
 }
 
 #wizardBreadcrumbItem[state="done"]:hover {
-    background: #d4f0df;
-    border: 1px solid #8fcca7;
+    background: #0d2e22;
+    border: 1px solid #10b981;
 }
 
 #wizardBreadcrumbSep {
-    color: #9099a7;
+    color: #4c3a8a;
     font-size: 12px;
     font-weight: 700;
 }
 
 #lineInput {
-    background: #ffffff;
-    color: #2e3642;
-    border: 1px solid #ccd2da;
+    background: #12151e;
+    color: #e8d5ff;
+    border: 1px solid #2a2045;
     border-radius: 8px;
     padding: 8px 10px;
     font-size: 13px;
 }
 
 #lineInput:focus {
-    border: 1px solid #7a8494;
+    border: 1px solid #7c3aed;
 }
 
 #descriptionInput {
-    background: #ffffff;
-    color: #2e3642;
-    border: 1px solid #ccd2da;
+    background: #12151e;
+    color: #e8d5ff;
+    border: 1px solid #2a2045;
     border-radius: 8px;
     padding: 8px 10px;
     font-size: 13px;
 }
 
 #descriptionInput:focus {
-    border: 1px solid #7a8494;
+    border: 1px solid #7c3aed;
 }
 
 #typeCombo {
-    background: #ffffff;
-    color: #2e3642;
-    border: 1px solid #ccd2da;
+    background: #12151e;
+    color: #e8d5ff;
+    border: 1px solid #2a2045;
     border-radius: 8px;
     padding: 6px 8px;
     font-size: 13px;
 }
 
 #typeCombo QAbstractItemView {
-    background: #ffffff;
-    color: #2e3642;
-    border: 1px solid #c7ced8;
-    selection-background-color: #4f5e73;
+    background: #12151e;
+    color: #e8d5ff;
+    border: 1px solid #2a2045;
+    selection-background-color: #7c3aed;
     selection-color: #ffffff;
 }
 
 #typeCombo:focus {
-    border: 1px solid #7a8494;
+    border: 1px solid #7c3aed;
 }
 
 #primaryButton {
-    background: #2a4f78;
+    background: #7c3aed;
     color: #ffffff;
-    border: 1px solid #4b79aa;
+    border: 1px solid #8b5cf6;
     border-radius: 10px;
     padding: 9px 14px;
     font-size: 13px;
@@ -283,13 +284,13 @@ QMainWindow, #appRoot {
 }
 
 #primaryButton:hover {
-    background: #335b88;
+    background: #8b5cf6;
 }
 
 #secondaryButton {
-    background: #ffffff;
-    color: #3f4f65;
-    border: 1px solid #c4ccd8;
+    background: #1e1438;
+    color: #c4b5fd;
+    border: 1px solid #4c3a8a;
     border-radius: 10px;
     padding: 9px 12px;
     font-size: 13px;
@@ -297,13 +298,13 @@ QMainWindow, #appRoot {
 }
 
 #secondaryButton:hover {
-    background: #f4f6f8;
+    background: #2a1f52;
 }
 
 #ghostButton {
     background: transparent;
-    color: #3f4f65;
-    border: 1px solid #c7ced8;
+    color: #9d86c8;
+    border: 1px solid #2a2045;
     border-radius: 10px;
     padding: 9px 12px;
     font-size: 13px;
@@ -311,13 +312,14 @@ QMainWindow, #appRoot {
 }
 
 #ghostButton:hover {
-    background: #e9edf2;
+    background: #1e1438;
+    color: #e8d5ff;
 }
 
 #dangerButton {
-    background: #7a2a2a;
+    background: #7f1d1d;
     color: #ffffff;
-    border: 1px solid #a84444;
+    border: 1px solid #ef4444;
     border-radius: 10px;
     padding: 9px 14px;
     font-size: 13px;
@@ -325,19 +327,19 @@ QMainWindow, #appRoot {
 }
 
 #dangerButton:hover {
-    background: #8f3333;
+    background: #991b1b;
 }
 
 #dangerButton:disabled {
-    background: #c4ccd8;
-    color: #8a95a3;
-    border-color: #c4ccd8;
+    background: #1e1438;
+    color: #4c3a8a;
+    border-color: #2a2045;
 }
 
 #smallPrimaryButton {
-    background: #2a4f78;
+    background: #7c3aed;
     color: #ffffff;
-    border: 1px solid #4b79aa;
+    border: 1px solid #8b5cf6;
     border-radius: 8px;
     padding: 6px 10px;
     font-size: 12px;
@@ -345,13 +347,13 @@ QMainWindow, #appRoot {
 }
 
 #smallPrimaryButton:hover {
-    background: #335b88;
+    background: #8b5cf6;
 }
 
 #dangerGhostButton {
     background: transparent;
-    color: #8a3a3a;
-    border: 1px solid #ddc4c4;
+    color: #f87171;
+    border: 1px solid #7f1d1d;
     border-radius: 8px;
     padding: 6px 10px;
     font-size: 12px;
@@ -359,39 +361,39 @@ QMainWindow, #appRoot {
 }
 
 #dangerGhostButton:hover {
-    background: #fff2f2;
+    background: #1c0a0a;
 }
 
 #hintText {
-    color: #6b7584;
+    color: #7c6fa0;
     font-size: 12px;
 }
 
 #sectionLabel {
-    color: #2e3642;
+    color: #c4b5fd;
     font-size: 14px;
     font-weight: 700;
 }
 
 #kvRow {
-    background: #ffffff;
-    border: 1px solid #d7dce4;
+    background: #12151e;
+    border: 1px solid #2a2045;
     border-radius: 10px;
 }
 
 #summaryBox {
-    background: #ffffff;
-    color: #2e3642;
-    border: 1px solid #ccd2da;
+    background: #12151e;
+    color: #c4b5fd;
+    border: 1px solid #2a2045;
     border-radius: 10px;
     padding: 8px;
     font-size: 13px;
 }
 
 #analysisBox {
-    background: #0f1c2f;
-    color: #d8e6f7;
-    border: 1px solid #2b4a6e;
+    background: #07080d;
+    color: #a78bfa;
+    border: 1px solid #3a1f7a;
     border-radius: 10px;
     padding: 10px;
     font-size: 12px;
@@ -399,28 +401,28 @@ QMainWindow, #appRoot {
 }
 
 #scriptsSearch {
-    background: #ffffff;
-    color: #2e3642;
-    border: 1px solid #ccd2da;
+    background: #12151e;
+    color: #e8d5ff;
+    border: 1px solid #2a2045;
     border-radius: 10px;
     padding: 10px 12px;
     font-size: 13px;
 }
 
 #scriptsSearch:focus {
-    border: 1px solid #7a8494;
+    border: 1px solid #7c3aed;
 }
 
 #scriptsMeta {
-    color: #6b7584;
+    color: #7c6fa0;
     font-size: 12px;
     font-weight: 600;
 }
 
 #scriptCatalogList {
-    background: #ffffff;
-    color: #2e3642;
-    border: 1px solid #d7dce4;
+    background: #0c0e16;
+    color: #e8d5ff;
+    border: 1px solid #2a2045;
     border-radius: 12px;
     padding: 6px;
     outline: none;
@@ -432,13 +434,13 @@ QMainWindow, #appRoot {
 }
 
 #scriptCatalogList::item:selected {
-    background: #4f5e73;
+    background: #7c3aed;
     color: #ffffff;
 }
 
 #scriptCard {
-    background: #ffffff;
-    border: 1px solid #d7dce4;
+    background: #12151e;
+    border: 1px solid #2a2045;
     border-radius: 14px;
 }
 
@@ -448,33 +450,33 @@ QMainWindow, #appRoot {
     min-height: 34px;
     max-height: 34px;
     border-radius: 17px;
-    background: #e8ebf0;
-    color: #2e3642;
+    background: #1e1438;
+    color: #c4b5fd;
     font-size: 13px;
     font-weight: 700;
     qproperty-alignment: AlignCenter;
 }
 
 #scriptCardTitle {
-    color: #182433;
+    color: #e8d5ff;
     font-size: 16px;
     font-weight: 700;
 }
 
 #scriptCardUuid {
-    color: #6b7584;
+    color: #7c6fa0;
     font-size: 11px;
 }
 
 #scriptCardDescription {
-    color: #4d5663;
+    color: #9d86c8;
     font-size: 13px;
 }
 
 #runScriptButton {
-    background: #2a4f78;
+    background: #7c3aed;
     color: #ffffff;
-    border: 1px solid #4b79aa;
+    border: 1px solid #8b5cf6;
     border-radius: 10px;
     padding: 8px 14px;
     font-size: 13px;
@@ -482,23 +484,23 @@ QMainWindow, #appRoot {
 }
 
 #runScriptButton:hover {
-    background: #335b88;
+    background: #8b5cf6;
 }
 
 /* ── Script Viewer Page ──────────────────────────────────────────── */
 
 #ScriptViewerPage {
-    background: #eef1f4;
+    background: #0c0e16;
 }
 
 #viewerMetaBar {
-    background: #e2e7ee;
-    border: 1px solid #cdd3db;
+    background: #12151e;
+    border: 1px solid #2a2045;
     border-radius: 8px;
 }
 
 #viewerMetaLabel {
-    color: #4d617a;
+    color: #7c6fa0;
     font-size: 12px;
     font-family: "Consolas", "Courier New", monospace;
 }
@@ -507,8 +509,8 @@ QMainWindow, #appRoot {
 
 #viewScriptButton {
     background: transparent;
-    color: #2a4f78;
-    border: 1px solid #2a4f78;
+    color: #8b5cf6;
+    border: 1px solid #7c3aed;
     border-radius: 10px;
     padding: 8px 14px;
     font-size: 13px;
@@ -516,13 +518,14 @@ QMainWindow, #appRoot {
 }
 
 #viewScriptButton:hover {
-    background: #e0eeff;
+    background: #1e1438;
+    color: #c4b5fd;
 }
 
 #scriptSourceBox {
-    background: #1a1f2e;
-    color: #d4e0f0;
-    border: 1px solid #2a3a54;
+    background: #07080d;
+    color: #a78bfa;
+    border: 1px solid #3a1f7a;
     border-radius: 10px;
     padding: 12px;
     font-size: 12px;
@@ -530,55 +533,55 @@ QMainWindow, #appRoot {
 }
 
 #detailMetaKey {
-    color: #4d617a;
+    color: #9d86c8;
     font-size: 13px;
     font-weight: 700;
 }
 
 #detailMetaValue {
-    color: #2e3642;
+    color: #c4b5fd;
     font-size: 13px;
 }
 
 #detailDivider {
-    background: #d7dce4;
+    background: #2a2045;
     max-height: 1px;
     border: none;
 }
 
 #varFrame {
-    background: #f4f6f9;
-    border: 1px solid #d7dce4;
+    background: #12151e;
+    border: 1px solid #2a2045;
     border-radius: 10px;
 }
 
 #varSectionTitle {
-    color: #3f4f65;
+    color: #c4b5fd;
     font-size: 13px;
     font-weight: 700;
 }
 
 #varItem {
-    background: #ffffff;
-    border: 1px solid #e0e4ea;
+    background: #1a1f2e;
+    border: 1px solid #2a2045;
     border-radius: 8px;
 }
 
 #varItemName {
-    color: #2e3642;
+    color: #e8d5ff;
     font-size: 13px;
     font-weight: 600;
 }
 
 #varItemType {
-    color: #6b7584;
+    color: #7c6fa0;
     font-size: 12px;
 }
 
 #depBadge {
-    background: #e0eeff;
-    color: #2a4f78;
-    border: 1px solid #b3d0f5;
+    background: #1e1438;
+    color: #a78bfa;
+    border: 1px solid #4c3a8a;
     border-radius: 12px;
     padding: 4px 12px;
     font-size: 12px;
