@@ -1,349 +1,379 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCRIPTS ARCHITECT — DARK THEME
+   Palette: Near-black · Charcoal cards · Violet accent · Slate text
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 QMainWindow, #appRoot {
-    background: #0a0b10;
-    color: #f5f0ff;
-    font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    font-family: "Segoe UI", "Inter", "Trebuchet MS", sans-serif;
+    font-size: 13px;
 }
 
+/* ── Navbar ────────────────────────────────────────────────────────────── */
+
 #navbar {
-    background: qlineargradient(
-        x1: 0, y1: 0, x2: 1, y2: 0,
-        stop: 0 #0f0720,
-        stop: 1 #170d38
-    );
-    border-bottom: 1px solid #3a1f7a;
-    min-height: 72px;
-    max-height: 72px;
+    background: #010409;
+    border-bottom: 1px solid #21262d;
+    min-height: 60px;
+    max-height: 60px;
 }
 
 #brandTitle {
-    color: #e8d5ff;
-    font-size: 20px;
+    color: #f0f6fc;
+    font-size: 17px;
     font-weight: 700;
+    letter-spacing: 0.3px;
 }
 
 #navStatus {
-    color: #c4b5fd;
-    background: #1e1438;
-    border: 1px solid #4c3a8a;
-    border-radius: 12px;
-    padding: 5px 12px;
-    font-size: 12px;
+    color: #8b949e;
+    background: transparent;
+    border: 1px solid #21262d;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
     font-weight: 600;
 }
 
 #topTabButton {
     background: transparent;
-    color: #c4b5fd;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    padding: 8px 14px;
+    color: #8b949e;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 18px;
     font-size: 13px;
     font-weight: 600;
+    min-width: 72px;
 }
 
 #topTabButton:hover {
-    background: #2a1f52;
-    border: 1px solid #5a3f9a;
-    color: #f5f0ff;
+    background: rgba(177, 186, 196, 0.08);
+    color: #e6edf3;
 }
 
 #topTabButton:checked {
     background: #7c3aed;
-    border: 1px solid #8b5cf6;
     color: #ffffff;
 }
 
 #sidebarToggleButton {
-    background: #1e1438;
-    color: #e8d5ff;
-    border: 1px solid #4c3a8a;
-    border-radius: 10px;
-    padding: 8px 10px;
+    background: transparent;
+    color: #8b949e;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 6px 12px;
     font-size: 12px;
     font-weight: 600;
-    min-width: 96px;
 }
 
 #sidebarToggleButton:hover {
-    background: #2a1f52;
+    background: rgba(177, 186, 196, 0.08);
+    color: #e6edf3;
+    border-color: #30363d;
 }
 
 #themeToggleButton {
-    background: #1e1438;
-    color: #c4b5fd;
-    border: 1px solid #4c3a8a;
-    border-radius: 10px;
-    padding: 8px 14px;
+    background: transparent;
+    color: #8b949e;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 6px 14px;
     font-size: 12px;
     font-weight: 600;
 }
 
 #themeToggleButton:hover {
-    background: #2a1f52;
-    color: #f5f0ff;
+    background: rgba(177, 186, 196, 0.08);
+    color: #e6edf3;
     border-color: #7c3aed;
 }
 
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+
 #sidebar {
-    background: #0c0a18;
-    min-width: 238px;
-    max-width: 238px;
-    border-right: 1px solid #261c4a;
+    background: #0d1117;
+    min-width: 248px;
+    max-width: 248px;
+    border-right: 1px solid #21262d;
 }
 
 #sidebarTitle {
-    color: #e8d5ff;
-    font-size: 17px;
+    color: #f0f6fc;
+    font-size: 15px;
     font-weight: 700;
 }
 
 #sidebarSubtitle {
-    color: #7c6fa0;
-    font-size: 12px;
-    margin-bottom: 6px;
+    color: #8b949e;
+    font-size: 11px;
+    font-weight: 500;
 }
 
 #scriptList {
-    background: #0a0b10;
-    color: #c4b5fd;
-    border: 1px solid #2a2045;
-    border-radius: 10px;
-    padding: 4px;
+    background: transparent;
+    color: #c9d1d9;
+    border: none;
+    padding: 2px;
     outline: none;
 }
 
 #scriptList::item {
     border-radius: 8px;
-    padding: 8px 10px;
+    padding: 9px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #8b949e;
+}
+
+#scriptList::item:hover {
+    background: #161b22;
+    color: #c9d1d9;
 }
 
 #scriptList::item:selected {
-    background: #7c3aed;
-    color: #ffffff;
-}
-
-#navButton {
-    background: transparent;
-    color: #c4b5fd;
-    text-align: left;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    padding: 11px 14px;
-    font-size: 14px;
+    background: #1f2a3a;
+    color: #a78bfa;
     font-weight: 600;
 }
 
-#navButton:hover {
-    background: #2a1f52;
-    border: 1px solid #5a3f9a;
-    color: #f5f0ff;
-}
-
-#navButton:checked {
-    background: #7c3aed;
-    border: 1px solid #8b5cf6;
-    color: #ffffff;
-}
+/* ── Main content area ──────────────────────────────────────────────────── */
 
 #mainContent {
-    background: #0c0e16;
-    color: #f5f0ff;
+    background: #0d1117;
 }
 
-#Home, #ScriptsPage, #HistoryPage, #AddScriptPage, #ScriptDetailPage {
-    background: #0c0e16;
+#Home, #ScriptsPage, #HistoryPage, #AddScriptPage,
+#ScriptDetailPage, #ScriptViewerPage {
+    background: #0d1117;
 }
+
+#ScriptDetailPage QScrollArea,
+#ScriptDetailPage QScrollArea > QWidget > QWidget,
+#AddScriptPage QScrollArea,
+#AddScriptPage QScrollArea > QWidget > QWidget {
+    background: transparent;
+    border: none;
+}
+
+/* ── Typography ─────────────────────────────────────────────────────────── */
 
 #pageTitle {
-    font-size: 30px;
-    color: #e8d5ff;
+    font-size: 24px;
+    color: #f0f6fc;
     font-weight: 700;
+    letter-spacing: -0.3px;
 }
 
 #pageSubtitle {
-    font-size: 15px;
-    color: #7c6fa0;
+    font-size: 13px;
+    color: #8b949e;
 }
 
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+
 #contentCard {
-    background: #12151e;
-    border: 1px solid #2a2045;
-    border-radius: 14px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
 }
 
 #cardTitle {
-    color: #e8d5ff;
-    font-size: 18px;
+    color: #f0f6fc;
+    font-size: 15px;
     font-weight: 700;
 }
 
 #cardText {
-    color: #9d86c8;
-    font-size: 14px;
+    color: #8b949e;
+    font-size: 13px;
 }
 
+/* ── Wizard / breadcrumb ─────────────────────────────────────────────────── */
+
 #stepIndicator {
-    color: #7c6fa0;
-    font-size: 13px;
-    font-weight: 700;
+    color: #8b949e;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 #wizardBreadcrumbBar {
-    background: #12151e;
-    border: 1px solid #2a2045;
+    background: #161b22;
+    border: 1px solid #30363d;
     border-radius: 10px;
 }
 
 #wizardBreadcrumbItem {
-    color: #7c6fa0;
+    color: #8b949e;
     background: transparent;
-    border-radius: 7px;
+    border-radius: 6px;
     padding: 5px 10px;
     font-size: 12px;
     font-weight: 600;
 }
 
 #wizardBreadcrumbItem[state="active"] {
-    color: #e8d5ff;
-    background: #1e1438;
-    border: 1px solid #4c3a8a;
+    color: #e6edf3;
+    background: #1f2a3a;
+    border: 1px solid #388bfd;
 }
 
 #wizardBreadcrumbItem[state="done"] {
-    color: #10b981;
-    background: #0a1f18;
-    border: 1px solid #065f46;
+    color: #3fb950;
+    background: #0d1f0e;
+    border: 1px solid #238636;
 }
 
 #wizardBreadcrumbItem[state="done"]:hover {
-    background: #0d2e22;
-    border: 1px solid #10b981;
+    background: #102210;
+    border-color: #3fb950;
 }
 
 #wizardBreadcrumbSep {
-    color: #4c3a8a;
-    font-size: 12px;
-    font-weight: 700;
+    color: #30363d;
+    font-size: 11px;
 }
 
+/* ── Form inputs ─────────────────────────────────────────────────────────── */
+
 #lineInput {
-    background: #12151e;
-    color: #e8d5ff;
-    border: 1px solid #2a2045;
+    background: #0d1117;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
     border-radius: 8px;
-    padding: 8px 10px;
+    padding: 9px 12px;
     font-size: 13px;
+}
+
+#lineInput:hover {
+    border-color: #484f58;
 }
 
 #lineInput:focus {
-    border: 1px solid #7c3aed;
+    border: 1.5px solid #388bfd;
 }
 
 #descriptionInput {
-    background: #12151e;
-    color: #e8d5ff;
-    border: 1px solid #2a2045;
+    background: #0d1117;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
     border-radius: 8px;
-    padding: 8px 10px;
+    padding: 9px 12px;
     font-size: 13px;
 }
 
+#descriptionInput:hover {
+    border-color: #484f58;
+}
+
 #descriptionInput:focus {
-    border: 1px solid #7c3aed;
+    border: 1.5px solid #388bfd;
 }
 
 #typeCombo {
-    background: #12151e;
-    color: #e8d5ff;
-    border: 1px solid #2a2045;
+    background: #0d1117;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
     border-radius: 8px;
-    padding: 6px 8px;
+    padding: 7px 10px;
     font-size: 13px;
 }
 
 #typeCombo QAbstractItemView {
-    background: #12151e;
-    color: #e8d5ff;
-    border: 1px solid #2a2045;
+    background: #161b22;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
     selection-background-color: #7c3aed;
     selection-color: #ffffff;
+    outline: none;
+    padding: 4px;
 }
 
 #typeCombo:focus {
-    border: 1px solid #7c3aed;
+    border: 1.5px solid #388bfd;
 }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
 
 #primaryButton {
     background: #7c3aed;
     color: #ffffff;
-    border: 1px solid #8b5cf6;
-    border-radius: 10px;
-    padding: 9px 14px;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 22px;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
+    min-width: 80px;
 }
 
 #primaryButton:hover {
     background: #8b5cf6;
 }
 
+#primaryButton:pressed {
+    background: #6d28d9;
+}
+
 #secondaryButton {
-    background: #1e1438;
-    color: #c4b5fd;
-    border: 1px solid #4c3a8a;
-    border-radius: 10px;
-    padding: 9px 12px;
+    background: #161b22;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 9px 18px;
     font-size: 13px;
     font-weight: 600;
 }
 
 #secondaryButton:hover {
-    background: #2a1f52;
+    background: #1f2a3a;
+    border-color: #484f58;
+    color: #e6edf3;
 }
 
 #ghostButton {
     background: transparent;
-    color: #9d86c8;
-    border: 1px solid #2a2045;
-    border-radius: 10px;
-    padding: 9px 12px;
+    color: #8b949e;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 9px 18px;
     font-size: 13px;
     font-weight: 600;
 }
 
 #ghostButton:hover {
-    background: #1e1438;
-    color: #e8d5ff;
+    background: #161b22;
+    border-color: #484f58;
+    color: #c9d1d9;
 }
 
 #dangerButton {
-    background: #7f1d1d;
+    background: #da3633;
     color: #ffffff;
-    border: 1px solid #ef4444;
-    border-radius: 10px;
-    padding: 9px 14px;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 22px;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 #dangerButton:hover {
-    background: #991b1b;
+    background: #b91c1c;
 }
 
 #dangerButton:disabled {
-    background: #1e1438;
-    color: #4c3a8a;
-    border-color: #2a2045;
+    background: #161b22;
+    color: #484f58;
+    border: 1px solid #21262d;
 }
 
 #smallPrimaryButton {
     background: #7c3aed;
     color: #ffffff;
-    border: 1px solid #8b5cf6;
-    border-radius: 8px;
-    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 14px;
     font-size: 12px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 #smallPrimaryButton:hover {
@@ -352,238 +382,329 @@ QMainWindow, #appRoot {
 
 #dangerGhostButton {
     background: transparent;
-    color: #f87171;
-    border: 1px solid #7f1d1d;
-    border-radius: 8px;
+    color: #f85149;
+    border: 1px solid #da3633;
+    border-radius: 6px;
     padding: 6px 10px;
     font-size: 12px;
     font-weight: 600;
 }
 
 #dangerGhostButton:hover {
-    background: #1c0a0a;
+    background: #1a0808;
+    border-color: #f85149;
 }
 
+/* ── Labels / text helpers ───────────────────────────────────────────────── */
+
 #hintText {
-    color: #7c6fa0;
+    color: #8b949e;
     font-size: 12px;
 }
 
 #sectionLabel {
-    color: #c4b5fd;
-    font-size: 14px;
+    color: #c9d1d9;
+    font-size: 13px;
     font-weight: 700;
 }
 
+/* ── KV editor row ──────────────────────────────────────────────────────── */
+
 #kvRow {
-    background: #12151e;
-    border: 1px solid #2a2045;
-    border-radius: 10px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
 }
+
+/* ── Text boxes ─────────────────────────────────────────────────────────── */
 
 #summaryBox {
-    background: #12151e;
-    color: #c4b5fd;
-    border: 1px solid #2a2045;
-    border-radius: 10px;
-    padding: 8px;
-    font-size: 13px;
-}
-
-#analysisBox {
-    background: #07080d;
-    color: #a78bfa;
-    border: 1px solid #3a1f7a;
-    border-radius: 10px;
+    background: #0d1117;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 8px;
     padding: 10px;
     font-size: 12px;
     font-family: "Consolas", "Courier New", monospace;
 }
 
+#analysisBox {
+    background: #010409;
+    color: #a78bfa;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    font-family: "Consolas", "Courier New", monospace;
+}
+
+/* ── Scripts page ───────────────────────────────────────────────────────── */
+
 #scriptsSearch {
-    background: #12151e;
-    color: #e8d5ff;
-    border: 1px solid #2a2045;
-    border-radius: 10px;
-    padding: 10px 12px;
+    background: #0d1117;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 10px 14px;
     font-size: 13px;
 }
 
+#scriptsSearch:hover {
+    border-color: #484f58;
+}
+
 #scriptsSearch:focus {
-    border: 1px solid #7c3aed;
+    border: 1.5px solid #388bfd;
 }
 
 #scriptsMeta {
-    color: #7c6fa0;
-    font-size: 12px;
+    color: #8b949e;
+    font-size: 11px;
     font-weight: 600;
 }
 
 #scriptCatalogList {
-    background: #0c0e16;
-    color: #e8d5ff;
-    border: 1px solid #2a2045;
-    border-radius: 12px;
-    padding: 6px;
+    background: transparent;
+    border: none;
     outline: none;
 }
 
 #scriptCatalogList::item {
-    border-radius: 8px;
-    padding: 8px 10px;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
 }
 
 #scriptCatalogList::item:selected {
-    background: #7c3aed;
-    color: #ffffff;
+    background: transparent;
 }
 
+/* ── Script card ─────────────────────────────────────────────────────────── */
+
 #scriptCard {
-    background: #12151e;
-    border: 1px solid #2a2045;
-    border-radius: 14px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+}
+
+#scriptCard:hover {
+    border-color: #7c3aed;
 }
 
 #scriptNumberBadge {
-    min-width: 34px;
-    max-width: 34px;
-    min-height: 34px;
-    max-height: 34px;
-    border-radius: 17px;
-    background: #1e1438;
-    color: #c4b5fd;
-    font-size: 13px;
+    min-width: 30px;
+    max-width: 30px;
+    min-height: 30px;
+    max-height: 30px;
+    border-radius: 15px;
+    background: #1f2a3a;
+    color: #a78bfa;
+    font-size: 12px;
     font-weight: 700;
     qproperty-alignment: AlignCenter;
 }
 
 #scriptCardTitle {
-    color: #e8d5ff;
-    font-size: 16px;
+    color: #f0f6fc;
+    font-size: 14px;
     font-weight: 700;
 }
 
 #scriptCardUuid {
-    color: #7c6fa0;
+    color: #8b949e;
     font-size: 11px;
+    font-family: "Consolas", "Courier New", monospace;
 }
 
 #scriptCardDescription {
-    color: #9d86c8;
+    color: #8b949e;
     font-size: 13px;
+}
+
+#scriptSelectCheckbox::indicator {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #30363d;
+    border-radius: 4px;
+    background: #0d1117;
+}
+
+#scriptSelectCheckbox::indicator:checked {
+    background: #7c3aed;
+    border-color: #7c3aed;
 }
 
 #runScriptButton {
     background: #7c3aed;
     color: #ffffff;
-    border: 1px solid #8b5cf6;
-    border-radius: 10px;
-    padding: 8px 14px;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 18px;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 #runScriptButton:hover {
     background: #8b5cf6;
 }
 
-/* ── Script Viewer Page ──────────────────────────────────────────── */
+/* ── Script viewer ──────────────────────────────────────────────────────── */
 
 #ScriptViewerPage {
-    background: #0c0e16;
+    background: #0d1117;
 }
 
 #viewerMetaBar {
-    background: #12151e;
-    border: 1px solid #2a2045;
+    background: #161b22;
+    border: 1px solid #30363d;
     border-radius: 8px;
 }
 
 #viewerMetaLabel {
-    color: #7c6fa0;
+    color: #8b949e;
     font-size: 12px;
     font-family: "Consolas", "Courier New", monospace;
 }
 
-/* ── Script Detail Page ──────────────────────────────────────────── */
+/* ── Script detail ──────────────────────────────────────────────────────── */
 
 #viewScriptButton {
     background: transparent;
-    color: #8b5cf6;
+    color: #a78bfa;
     border: 1px solid #7c3aed;
-    border-radius: 10px;
-    padding: 8px 14px;
+    border-radius: 8px;
+    padding: 7px 18px;
     font-size: 13px;
     font-weight: 600;
 }
 
 #viewScriptButton:hover {
-    background: #1e1438;
+    background: #1f1040;
+    border-color: #8b5cf6;
     color: #c4b5fd;
 }
 
 #scriptSourceBox {
-    background: #07080d;
-    color: #a78bfa;
-    border: 1px solid #3a1f7a;
+    background: #010409;
+    color: #e6edf3;
+    border: 1px solid #30363d;
     border-radius: 10px;
-    padding: 12px;
+    padding: 16px;
     font-size: 12px;
     font-family: "Consolas", "Courier New", monospace;
 }
 
 #detailMetaKey {
-    color: #9d86c8;
+    color: #8b949e;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 #detailMetaValue {
-    color: #c4b5fd;
+    color: #c9d1d9;
     font-size: 13px;
 }
 
 #detailDivider {
-    background: #2a2045;
+    background: #21262d;
     max-height: 1px;
     border: none;
 }
 
 #varFrame {
-    background: #12151e;
-    border: 1px solid #2a2045;
+    background: #161b22;
+    border: 1px solid #21262d;
     border-radius: 10px;
 }
 
 #varSectionTitle {
-    color: #c4b5fd;
-    font-size: 13px;
+    color: #8b949e;
+    font-size: 11px;
     font-weight: 700;
 }
 
 #varItem {
-    background: #1a1f2e;
-    border: 1px solid #2a2045;
+    background: #0d1117;
+    border: 1px solid #21262d;
     border-radius: 8px;
 }
 
 #varItemName {
-    color: #e8d5ff;
+    color: #c9d1d9;
     font-size: 13px;
     font-weight: 600;
 }
 
 #varItemType {
-    color: #7c6fa0;
-    font-size: 12px;
+    color: #a78bfa;
+    font-size: 11px;
+    font-weight: 600;
+    background: #1f1040;
+    border-radius: 4px;
+    padding: 2px 7px;
 }
 
 #depBadge {
-    background: #1e1438;
+    background: #1f1040;
     color: #a78bfa;
-    border: 1px solid #4c3a8a;
-    border-radius: 12px;
-    padding: 4px 12px;
+    border: 1px solid #7c3aed;
+    border-radius: 20px;
+    padding: 4px 14px;
     font-size: 12px;
     font-weight: 600;
+}
+
+/* ── Scrollbars (thin, modern) ──────────────────────────────────────────── */
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 6px;
+    margin: 0;
+    border: none;
+}
+
+QScrollBar::handle:vertical {
+    background: #30363d;
+    border-radius: 3px;
+    min-height: 32px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #484f58;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: transparent;
+    height: 0;
+    border: none;
+}
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 6px;
+    margin: 0;
+    border: none;
+}
+
+QScrollBar::handle:horizontal {
+    background: #30363d;
+    border-radius: 3px;
+    min-width: 32px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #484f58;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal,
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: transparent;
+    width: 0;
+    border: none;
 }

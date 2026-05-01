@@ -88,3 +88,112 @@ now the second thing, there is going to be a each script page. in the each scrip
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+now i want to set the running of the script. 
+For running of the script, i want that there to be a sandbox kind of (in a separate thread, i dont want the app to stop while one script, is running, it should be something like there is a parallel process running with the app) 
+Now what i want that in the sand box initially there would be a check that would run for the dependencies required for the app to run, if the given dependecies are there, ... then we would proceed to ask for the value of the input variable and the config variable.
+
+if the dependencies are not there, then an uv command would run to add those dependencies to the environment (yes i would like to use uv cause i want to keep the process timing less and uv is blazing fast that pip. thus i would use uv)
+
+finally i would execute the script ... but before executing i want to have all the the variables setup.l 
+
+I just took the name of the input variable while adding the script, but the real reason i took it at that time is for now to have the values. 
+with the input variable (if any) then there should be a file i am going to select of that file type, 
+suppose input variable is there.. named "main_file" and it is going to have path to a file with .xlsx extension.
+i want that before running in a instance, i would like to have a a file selector open up next to the variable value and then i would select a .xlsx file and the script would be then executed upon that file.
+similarly with thee output variable, if they have something related to these things, then these are going to be configured.
+
+
+after that finally inside the sandbox the script would be executed. 
+
+
+make this possible.

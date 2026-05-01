@@ -15,7 +15,7 @@ class Sidebar(QWidget):
         self.setObjectName("sidebar")
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(14, 16, 14, 16)
+        layout.setContentsMargins(14, 20, 14, 20)
         layout.setSpacing(10)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 

@@ -79,7 +79,7 @@ class ScriptCardWidget(QFrame):
 
         run_button = QPushButton("Run")
         run_button.setObjectName("runScriptButton")
-        run_button.clicked.connect(lambda: run_callback(script_path))
+        run_button.clicked.connect(lambda: run_callback(script_data))
         footer.addWidget(run_button)
 
         layout.addLayout(top_row)

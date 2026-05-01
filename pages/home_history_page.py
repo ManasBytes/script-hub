@@ -8,8 +8,8 @@ class Page(QWidget):
         self.setObjectName(object_name)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(28, 24, 28, 24)
-        layout.setSpacing(14)
+        layout.setContentsMargins(36, 32, 36, 32)
+        layout.setSpacing(16)
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         title = QLabel(title_text)

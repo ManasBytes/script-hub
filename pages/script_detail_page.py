@@ -67,6 +67,7 @@ def _meta_row(key: str, value: str) -> QHBoxLayout:
 class ScriptDetailPage(QWidget):
     back_requested = pyqtSignal()
     view_source_requested = pyqtSignal(dict)
+    run_requested = pyqtSignal(dict)
 
     def __init__(self) -> None:
         super().__init__()
@@ -74,8 +75,8 @@ class ScriptDetailPage(QWidget):
         self._script_data: dict = {}
 
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(22, 18, 22, 18)
-        main_layout.setSpacing(14)
+        main_layout.setContentsMargins(32, 24, 32, 24)
+        main_layout.setSpacing(16)
 
         # ── Fixed header ──────────────────────────────────────────────────
         header = QHBoxLayout()
@@ -91,6 +92,7 @@ class ScriptDetailPage(QWidget):
 
         self.run_btn = QPushButton("Run")
         self.run_btn.setObjectName("runScriptButton")
+        self.run_btn.clicked.connect(self._emit_run_requested)
 
         self.update_btn = QPushButton("Update Script")
         self.update_btn.setObjectName("primaryButton")
@@ -123,6 +125,10 @@ class ScriptDetailPage(QWidget):
     def load(self, script_data: dict) -> None:
         self._script_data = script_data
         self._rebuild()
+
+    def _emit_run_requested(self) -> None:
+        if self._script_data:
+            self.run_requested.emit(self._script_data)
 
     # ─────────────────────────────────────────────────────────────────────
     #  Body rebuild

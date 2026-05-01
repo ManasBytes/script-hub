@@ -20,8 +20,8 @@ class ScriptViewerPage(QWidget):
         self.setObjectName("ScriptViewerPage")
 
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(22, 18, 22, 18)
-        main_layout.setSpacing(12)
+        main_layout.setContentsMargins(32, 24, 32, 24)
+        main_layout.setSpacing(14)
 
         # ── Header ────────────────────────────────────────────────────────
         header = QHBoxLayout()

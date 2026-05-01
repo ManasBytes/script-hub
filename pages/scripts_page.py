@@ -1,9 +1,3 @@
-import os
-import shutil
-import subprocess
-import sys
-from pathlib import Path
-
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QHBoxLayout,
@@ -23,22 +17,11 @@ from registry import load_registry_entries
 from script_manager import ScriptManager
 
 
-def resolve_python_runner():
-    if not getattr(sys, "frozen", False):
-        return sys.executable
-
-    for candidate in ("python", "py"):
-        resolved = shutil.which(candidate)
-        if resolved:
-            return resolved
-
-    return None
-
-
 class ScriptsPage(QWidget):
     add_requested = pyqtSignal()
     scripts_changed = pyqtSignal()
     view_script_requested = pyqtSignal(dict)
+    run_script_requested = pyqtSignal(dict)
 
     def __init__(self):
         super().__init__()
@@ -47,8 +30,8 @@ class ScriptsPage(QWidget):
         self._card_widgets: list[ScriptCardWidget] = []
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(22, 18, 22, 18)
-        layout.setSpacing(10)
+        layout.setContentsMargins(32, 24, 32, 24)
+        layout.setSpacing(12)
 
         title = QLabel("Scripts")
         title.setObjectName("pageTitle")
@@ -80,7 +63,7 @@ class ScriptsPage(QWidget):
 
         self.scripts_list = QListWidget()
         self.scripts_list.setObjectName("scriptCatalogList")
-        self.scripts_list.setSpacing(10)
+        self.scripts_list.setSpacing(8)
         self.scripts_list.setUniformItemSizes(False)
 
         self._all_scripts = []
@@ -227,34 +210,8 @@ class ScriptsPage(QWidget):
             self._current_page += 1
             self._render_filtered()
 
-    def run_script(self, script_path):
-        python_runner = resolve_python_runner()
-        if not python_runner:
-            QMessageBox.warning(
-                self,
-                "Python Not Found",
-                "Could not find a Python interpreter to run this script.",
-            )
-            return
-
-        # Include the project root in PYTHONPATH so copied scripts can import local modules.
-        project_root = Path(__file__).resolve().parents[1]
-        env = os.environ.copy()
-        existing_pythonpath = env.get("PYTHONPATH", "")
-        env["PYTHONPATH"] = (
-            str(project_root)
-            if not existing_pythonpath
-            else f"{project_root}{os.pathsep}{existing_pythonpath}"
-        )
-
-        try:
-            subprocess.Popen(
-                [python_runner, script_path],
-                cwd=str(Path(script_path).parent),
-                env=env,
-            )
-        except OSError as error:
-            QMessageBox.critical(self, "Run Failed", f"Could not run script:\n{error}")
+    def run_script(self, script_data: dict) -> None:
+        self.run_script_requested.emit(script_data)
 
     def view_script(self, script_data: dict) -> None:
         self.view_script_requested.emit(script_data)

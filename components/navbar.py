@@ -6,14 +6,14 @@ class Navbar(QWidget):
         super().__init__()
         self.setObjectName("navbar")
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(18, 10, 18, 10)
-        layout.setSpacing(10)
+        layout.setContentsMargins(20, 0, 20, 0)
+        layout.setSpacing(12)
 
         title = QLabel("ScriptHub")
         title.setObjectName("brandTitle")
 
         tabs_wrap = QHBoxLayout()
-        tabs_wrap.setSpacing(8)
+        tabs_wrap.setSpacing(4)
         tabs_wrap.setContentsMargins(0, 0, 0, 0)
 
         btn_home = QPushButton("Home")
@@ -51,8 +51,8 @@ class Navbar(QWidget):
         layout.addWidget(title)
         layout.addStretch()
         layout.addLayout(tabs_wrap)
-        layout.addWidget(self.theme_button)
         layout.addStretch()
+        layout.addWidget(self.theme_button)
         layout.addWidget(status)
 
     def _activate(self, idx, switch_page_callback):

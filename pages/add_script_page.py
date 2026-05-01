@@ -154,8 +154,8 @@ class AddScriptPage(QWidget):
         ]
 
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(16, 14, 16, 14)
-        main_layout.setSpacing(10)
+        main_layout.setContentsMargins(32, 24, 32, 24)
+        main_layout.setSpacing(14)
 
         header_title = QLabel("Add Script")
         header_title.setObjectName("pageTitle")
