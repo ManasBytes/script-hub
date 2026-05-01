@@ -8,7 +8,9 @@
       "Bash(.venv/Scripts/python.exe -c \"import ast; ast.parse\\(open\\('pages/add_script_page.py'\\).read\\(\\)\\); print\\('OK'\\)\")",
       "Bash(.venv/Scripts/python.exe -c \"import ast; ast.parse\\(open\\('components/sidebar.py'\\).read\\(\\)\\); ast.parse\\(open\\('main.py'\\).read\\(\\)\\); print\\('OK'\\)\")",
       "Bash(.venv/Scripts/python.exe -c \"import ast, sys; [ast.parse\\(open\\(f\\).read\\(\\)\\) or print\\(f, 'OK'\\) for f in ['main.py','components/navbar.py','components/sidebar.py','pages/scripts_page.py','pages/add_script_page.py','pages/script_detail_page.py','pages/script_viewer_page.py','pages/home_history_page.py']]\")",
-      "Bash(.venv/Scripts/python.exe -c \"import ast; ast.parse\\(open\\('main.py'\\).read\\(\\)\\); print\\('OK'\\)\")"
+      "Bash(.venv/Scripts/python.exe -c \"import ast; ast.parse\\(open\\('main.py'\\).read\\(\\)\\); print\\('OK'\\)\")",
+      "Bash(.venv/Scripts/python.exe -c \"import ast; import workers; print\\('OK'\\)\")",
+      "Bash(python *)"
     ]
   }
 }

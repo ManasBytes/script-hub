@@ -197,3 +197,82 @@ after that finally inside the sandbox the script would be executed.
 
 
 make this possible.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+there is a serios change in the structure of managing the script,
+i want to add, for managing the scripts, the person should be able to manage the scripts in the folder based structures. 
+
+
+like the script tab is going to have a folder like structure. 
+
+
+
+
+
+
+and i dont know how to store it, it would be best if i store it in the given folder 
+
+in the script folder i want to store 
+
+in the manifest only there would be one thing called directory.json.
+
+in that the hierarchy of the folders and the scripts in it would be kept.
+
+so for example we can have folders and the scripts inside it as a list of dictionary.
+
+figure out how this can be done and immpllement it. 

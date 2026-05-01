@@ -19,19 +19,26 @@ class Navbar(QWidget):
         btn_home = QPushButton("Home")
         btn_scripts = QPushButton("Scripts")
         btn_history = QPushButton("History")
+        btn_trash = QPushButton("Trash")
 
         for button in (btn_home, btn_scripts, btn_history):
             button.setObjectName("topTabButton")
             button.setCheckable(True)
             tabs_wrap.addWidget(button)
 
+        # Add trash tab
+        btn_trash.setObjectName("topTabButton")
+        btn_trash.setCheckable(True)
+        tabs_wrap.addWidget(btn_trash)
+
         btn_home.setChecked(True)
 
         btn_home.clicked.connect(lambda: self._activate(0, switch_page_callback))
         btn_scripts.clicked.connect(lambda: self._activate(1, switch_page_callback))
         btn_history.clicked.connect(lambda: self._activate(2, switch_page_callback))
+        btn_trash.clicked.connect(lambda: self._activate(3, switch_page_callback))
 
-        self._tab_buttons = [btn_home, btn_scripts, btn_history]
+        self._tab_buttons = [btn_home, btn_scripts, btn_history, btn_trash]
 
         status = QLabel("Ready")
         status.setObjectName("navStatus")

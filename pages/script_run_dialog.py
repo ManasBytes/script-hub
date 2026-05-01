@@ -49,6 +49,7 @@ class ScriptRunDialog(QDialog):
         self._dependencies_ready = False
         self._run_in_progress = False
         self._install_attempted = False
+        self._runtime_values: dict[str, dict[str, object]] = {}
 
         root = QVBoxLayout(self)
         root.setContentsMargins(16, 14, 16, 14)
@@ -321,8 +322,8 @@ class ScriptRunDialog(QDialog):
             f"Could not install required dependencies:\n\n{error}",
         )
 
-    def _collect_runtime_values(self) -> dict[str, object] | None:
-        runtime_values: dict[str, object] = {}
+    def _collect_runtime_values(self) -> dict[str, dict[str, object]] | None:
+        runtime_values: dict[str, dict[str, object]] = {}
 
         def read_widget(widget: QWidget) -> str:
             if isinstance(widget, QLineEdit):
@@ -339,14 +340,22 @@ class ScriptRunDialog(QDialog):
             if not value:
                 QMessageBox.warning(self, "Missing Value", f"Input variable '{var_name}' is required.")
                 return None
-            runtime_values[var_name] = value
+            runtime_values[var_name] = {
+                "value": value,
+                "type": var_type,
+                "category": "input",
+            }
 
         for var_name, (var_type, widget) in self._output_widgets.items():
             value = read_widget(widget)
             if not value:
                 QMessageBox.warning(self, "Missing Value", f"Output variable '{var_name}' is required.")
                 return None
-            runtime_values[var_name] = value
+            runtime_values[var_name] = {
+                "value": value,
+                "type": var_type,
+                "category": "output",
+            }
 
         for var_name, (var_type, widget) in self._config_widgets.items():
             value = read_widget(widget)
@@ -357,20 +366,36 @@ class ScriptRunDialog(QDialog):
             normalized = (var_type or "").strip()
             if normalized == "int":
                 try:
-                    runtime_values[var_name] = int(value)
+                    runtime_values[var_name] = {
+                        "value": int(value),
+                        "type": var_type,
+                        "category": "config",
+                    }
                 except ValueError:
                     QMessageBox.warning(self, "Invalid Value", f"Config variable '{var_name}' must be an integer.")
                     return None
             elif normalized == "float":
                 try:
-                    runtime_values[var_name] = float(value)
+                    runtime_values[var_name] = {
+                        "value": float(value),
+                        "type": var_type,
+                        "category": "config",
+                    }
                 except ValueError:
                     QMessageBox.warning(self, "Invalid Value", f"Config variable '{var_name}' must be a float.")
                     return None
             elif normalized == "bool":
-                runtime_values[var_name] = isinstance(widget, QCheckBox) and widget.isChecked()
+                runtime_values[var_name] = {
+                    "value": isinstance(widget, QCheckBox) and widget.isChecked(),
+                    "type": var_type,
+                    "category": "config",
+                }
             else:
-                runtime_values[var_name] = value
+                runtime_values[var_name] = {
+                    "value": value,
+                    "type": var_type,
+                    "category": "config",
+                }
 
         return runtime_values
 
@@ -401,6 +426,9 @@ class ScriptRunDialog(QDialog):
         if runtime_values is None:
             return
 
+        # Store runtime values for later use in logging
+        self._runtime_values = runtime_values
+
         env = self._build_execution_env()
 
         self._run_in_progress = True
@@ -422,7 +450,7 @@ class ScriptRunDialog(QDialog):
         self.close_btn.setEnabled(True)
         self.dep_status_label.setText("Execution finished successfully.")
         self._append_log("Script completed with exit code 0.")
-        self._record_run_result(True)
+        self._record_run_result(True, exit_code=0)
 
     def _on_run_err(self, exit_code: int) -> None:
         self._run_in_progress = False
@@ -430,9 +458,9 @@ class ScriptRunDialog(QDialog):
         self.close_btn.setEnabled(True)
         self.dep_status_label.setText("Execution failed.")
         self._append_log(f"Script failed with exit code {exit_code}.")
-        self._record_run_result(False)
+        self._record_run_result(False, exit_code=exit_code)
 
-    def _record_run_result(self, success: bool) -> None:
+    def _record_run_result(self, success: bool, exit_code: int = 0) -> None:
         script_uuid = str(self._script_data.get("uuid", "")).strip()
         if not script_uuid:
             self.run_btn.setEnabled(True)
@@ -440,6 +468,20 @@ class ScriptRunDialog(QDialog):
 
         try:
             updated = self._script_manager.record_run_result(script_uuid, success)
+            
+            # Collect the execution log from the log box
+            execution_log = self.log_box.toPlainText()
+            
+            # Log the script run to history with all details
+            self._script_manager.log_script_run(
+                script_uuid,
+                self._script_data,
+                self._runtime_values,
+                execution_log,
+                success,
+                exit_code,
+            )
+            
             self._script_data = updated
             self.script_updated.emit(updated)
         except Exception as exc:

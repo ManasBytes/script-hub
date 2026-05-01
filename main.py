@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
 )
 
 from components import Navbar, Sidebar
-from pages import AddScriptPage, Page, ScriptDetailPage, ScriptViewerPage, ScriptsPage
+from pages import AddScriptPage, Page, ScriptDetailPage, ScriptViewerPage, ScriptsPage, HistoryPage, TrashPage
 from pages.script_run_dialog import ScriptRunDialog
 from script_manager import ScriptManager
 
@@ -88,11 +88,18 @@ class MainWindow(QMainWindow):
 
 		self.home_page = Page("Home", "Home", "Your command center and quick overview.")
 		self.scripts_page = ScriptsPage()
-		self.history_page = Page("HistoryPage", "History", "Track execution logs and previous runs.")
+		self.history_page = HistoryPage()
+		self.trash_page = TrashPage()
+		# Connect trash page refresh signal to refresh scripts/sidebar
+		try:
+			self.trash_page.request_refresh.connect(self._refresh_after_trash_action)
+		except Exception:
+			pass
 		self.add_script_page = AddScriptPage()
 		self.script_detail_page = ScriptDetailPage()
 		self.script_viewer_page = ScriptViewerPage()
 
+		self._pending_folder_id: str | None = None
 		self.scripts_page.add_requested.connect(self.open_add_script_page)
 		self.scripts_page.scripts_changed.connect(self.sidebar.reload)
 		self.scripts_page.view_script_requested.connect(self.open_script_detail)
@@ -112,6 +119,7 @@ class MainWindow(QMainWindow):
 		self.pages.addWidget(self.home_page)
 		self.pages.addWidget(self.scripts_page)
 		self.pages.addWidget(self.history_page)
+		self.pages.addWidget(self.trash_page)
 		self.pages.addWidget(self.add_script_page)
 		self.pages.addWidget(self.script_detail_page)
 		self.pages.addWidget(self.script_viewer_page)
@@ -129,9 +137,17 @@ class MainWindow(QMainWindow):
 		self._apply_stylesheet()
 
 	def switch_page(self, index):
+		# If switching to trash page, refresh its contents
+		widget = self.pages.widget(index) if 0 <= index < self.pages.count() else None
+		if widget is self.trash_page:
+			try:
+				self.trash_page.reload()
+			except Exception:
+				pass
 		self.pages.setCurrentIndex(index)
 
-	def open_add_script_page(self):
+	def open_add_script_page(self, folder_id=None):
+		self._pending_folder_id = folder_id
 		self.add_script_page.reset()
 		self.pages.setCurrentWidget(self.add_script_page)
 
@@ -140,6 +156,8 @@ class MainWindow(QMainWindow):
 		self.pages.setCurrentWidget(self.scripts_page)
 
 	def handle_script_submission(self, payload):
+		payload["folder_id"] = self._pending_folder_id
+		self._pending_folder_id = None
 		try:
 			entry = self.script_manager.save_script(payload)
 		except Exception as error:
@@ -179,6 +197,14 @@ class MainWindow(QMainWindow):
 		self._apply_stylesheet()
 		next_label = "Light Mode" if self._current_theme == "dark" else "Dark Mode"
 		self.navbar.set_theme_label(next_label)
+
+	def _refresh_after_trash_action(self):
+		# Refresh scripts list and sidebar after trash/restore actions
+		try:
+			self.scripts_page.reload_scripts()
+			self.sidebar.reload()
+		except Exception:
+			pass
 
 	def _apply_stylesheet(self):
 		filename = "style_dark.qss" if self._current_theme == "dark" else "style.qss"

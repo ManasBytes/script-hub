@@ -34,6 +34,27 @@ def write_registry_entry(manifest_root: Path, entry: dict) -> Path:
 
 
 def delete_registry_entry(manifest_root: Path, script_uuid: str) -> None:
+    """
+    Soft-delete a registry entry by marking it trashed.
+
+    This does NOT remove files from disk. Use `permanently_delete_registry_entry`
+    to remove files.
+    """
+    registry_path = registry_file_path(manifest_root, script_uuid)
+    if not registry_path.exists():
+        return
+    try:
+        entry = json.loads(registry_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        entry = {"uuid": script_uuid}
+
+    entry["trashed"] = True
+    entry["trashed_at"] = utc_now_iso()
+    write_registry_entry(manifest_root, entry)
+
+
+def permanently_delete_registry_entry(manifest_root: Path, script_uuid: str) -> None:
+    """Permanently remove script file and registry JSON from disk."""
     script_path = script_file_path(manifest_root, script_uuid)
     registry_path = registry_file_path(manifest_root, script_uuid)
     if script_path.exists():
@@ -42,7 +63,11 @@ def delete_registry_entry(manifest_root: Path, script_uuid: str) -> None:
         registry_path.unlink()
 
 
-def load_registry_entries(manifest_root: Path) -> list[dict]:
+def load_registry_entries(manifest_root: Path, include_trashed: bool = False) -> list[dict]:
+    """Load registry entries. By default trashed entries are excluded.
+
+    Set `include_trashed=True` to include entries where `trashed` is truthy.
+    """
     _, registry_dir = ensure_manifest_layout(manifest_root)
     entries: list[dict] = []
 
@@ -59,6 +84,10 @@ def load_registry_entries(manifest_root: Path) -> list[dict]:
         entry["uuid"] = script_uuid
         entry["script_path"] = str(script_file_path(manifest_root, script_uuid))
         entry["registry_path"] = str(registry_file)
+
+        if entry.get("trashed") and not include_trashed:
+            continue
+
         entries.append(entry)
 
     return entries

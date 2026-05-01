@@ -151,7 +151,9 @@ QMainWindow, #appRoot {
 #ScriptDetailPage QScrollArea,
 #ScriptDetailPage QScrollArea > QWidget > QWidget,
 #AddScriptPage QScrollArea,
-#AddScriptPage QScrollArea > QWidget > QWidget {
+#AddScriptPage QScrollArea > QWidget > QWidget,
+#HistoryPage QScrollArea,
+#HistoryPage QScrollArea > QWidget > QWidget {
     background: transparent;
     border: none;
 }
@@ -438,6 +440,67 @@ QMainWindow, #appRoot {
     font-family: "Consolas", "Courier New", monospace;
 }
 
+/* ── Scripts page — folder tree ─────────────────────────────────────────── */
+
+#scriptsSplitter {
+    background: #0d1117;
+}
+
+QSplitter::handle {
+    background: #21262d;
+    width: 1px;
+}
+
+#folderTreePanel {
+    background: #0d1117;
+    border-right: 1px solid #21262d;
+}
+
+#folderTreeHeader {
+    background: #0d1117;
+    border-bottom: 1px solid #21262d;
+}
+
+#folderTreeTitle {
+    color: #f0f6fc;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#folderTree {
+    background: #0d1117;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: #8b949e;
+}
+
+#folderTree::item {
+    border-radius: 6px;
+    padding: 5px 8px;
+    color: #8b949e;
+    background: transparent;
+}
+
+#folderTree::item:hover {
+    background: #161b22;
+    color: #c9d1d9;
+}
+
+#folderTree::item:selected {
+    background: #1f2a3a;
+    color: #a78bfa;
+    font-weight: 600;
+}
+
+#folderTree::branch {
+    background: transparent;
+}
+
+#scriptsRightPanel {
+    background: transparent;
+}
+
 /* ── Scripts page ───────────────────────────────────────────────────────── */
 
 #scriptsSearch {
@@ -655,6 +718,296 @@ QMainWindow, #appRoot {
     font-weight: 600;
 }
 
+/* ── Filter combo (History page) ───────────────────────────────────────── */
+
+#filterCombo {
+    background: #0d1117;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    min-width: 160px;
+}
+
+#filterCombo QAbstractItemView {
+    background: #161b22;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    selection-background-color: #7c3aed;
+    selection-color: #ffffff;
+    outline: none;
+    padding: 4px;
+}
+
+#filterCombo:hover {
+    border-color: #484f58;
+    color: #c9d1d9;
+}
+
+#filterCombo:focus {
+    border: 1.5px solid #388bfd;
+    color: #c9d1d9;
+}
+
+/* ── History page ──────────────────────────────────────────────────────── */
+
+#historyScrollArea,
+#historyContainer {
+    background: transparent;
+    border: none;
+}
+
+#historyActionNum {
+    color: #8b949e;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: "Consolas", "Courier New", monospace;
+}
+
+#historyTypeBadge {
+    border-radius: 10px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#historyTypeBadge[badgeType="script_added"] {
+    background: #0d1f0e;
+    color: #3fb950;
+    border: 1px solid #238636;
+}
+
+#historyTypeBadge[badgeType="script_run"] {
+    background: #0c2d6b;
+    color: #79b8ff;
+    border: 1px solid #1f6feb;
+}
+
+#historyScriptName {
+    color: #e6edf3;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#historyTimestamp {
+    color: #484f58;
+    font-size: 11px;
+}
+
+#historyDivider {
+    background: #21262d;
+    border: none;
+}
+
+#historyDetailText {
+    color: #8b949e;
+    font-size: 12px;
+}
+
+#historyStatusBadge {
+    border-radius: 10px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+#historyStatusBadge[status="success"] {
+    background: #0d1f0e;
+    color: #3fb950;
+    border: 1px solid #238636;
+}
+
+#historyStatusBadge[status="failed"] {
+    background: #1a0808;
+    color: #f85149;
+    border: 1px solid #da3633;
+}
+
+#historyExitCode {
+    color: #8b949e;
+    font-size: 11px;
+    font-family: "Consolas", "Courier New", monospace;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 4px;
+    padding: 1px 6px;
+}
+
+#historySectionTitle {
+    color: #484f58;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+#historyRuntimeText {
+    color: #c9d1d9;
+    font-size: 12px;
+    font-family: "Consolas", "Courier New", monospace;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    padding: 4px 8px;
+}
+
+#historyLogBox {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 11px;
+    color: #8b949e;
+    background: #010409;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+#historyStatsLabel {
+    color: #8b949e;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* ── Grid view (mini cards) ─────────────────────────────────────────────── */
+
+#scriptGridView,
+#scriptGridContainer {
+    background: transparent;
+    border: none;
+}
+
+#folderMiniCard {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+}
+
+#folderMiniCard:hover {
+    border-color: #7c3aed;
+    background: #1a1f27;
+}
+
+#folderMiniCard[dragOver="true"] {
+    border: 2px solid #a78bfa;
+    background: #1e1b4b;
+}
+
+#scriptMiniCard {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+}
+
+#scriptMiniCard:hover {
+    border-color: #7c3aed;
+    background: #1a1f27;
+}
+
+#miniCardContent {
+    background: transparent;
+}
+
+#miniCardIcon {
+    font-size: 30px;
+    background: transparent;
+    color: #e6edf3;
+}
+
+#miniCardName {
+    color: #e6edf3;
+    font-size: 11px;
+    font-weight: 600;
+    background: transparent;
+}
+
+#scriptPyBadge {
+    background: #1f1040;
+    color: #a78bfa;
+    font-size: 12px;
+    font-weight: 800;
+    border-radius: 6px;
+    padding: 2px 6px;
+}
+
+#miniCardActionBar {
+    background: #0d1117;
+    border-top: 1px solid #21262d;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#miniCardRunBtn {
+    background: #7c3aed;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 0px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+#miniCardRunBtn:hover {
+    background: #8b5cf6;
+    color: #ffffff;
+}
+
+#miniCardViewBtn {
+    background: #161b22;
+    color: #8b949e;
+    border: 1px solid #30363d;
+    border-radius: 5px;
+    padding: 3px 0px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+#miniCardViewBtn:hover {
+    background: #21262d;
+    color: #c9d1d9;
+    border-color: #484f58;
+}
+
+#gridEmptyLabel {
+    color: #484f58;
+    font-size: 13px;
+    background: transparent;
+}
+
+/* ── Breadcrumb ─────────────────────────────────────────────────────────── */
+
+#breadcrumbBar {
+    background: transparent;
+}
+
+#breadcrumbBtn {
+    background: transparent;
+    color: #8b949e;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 1px 4px;
+}
+
+#breadcrumbBtn:hover {
+    color: #e6edf3;
+    background: #21262d;
+    border-radius: 4px;
+}
+
+#breadcrumbBtnActive {
+    background: transparent;
+    color: #f0f6fc;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 1px 4px;
+}
+
+#breadcrumbSep {
+    color: #484f58;
+    font-size: 13px;
+    font-weight: 400;
+}
+
 /* ── Scrollbars (thin, modern) ──────────────────────────────────────────── */
 
 QScrollBar:vertical {
@@ -707,4 +1060,87 @@ QScrollBar::sub-page:horizontal {
     background: transparent;
     width: 0;
     border: none;
+}
+
+/* ── Trash Page ─────────────────────────────────────────────────────────────── */
+
+#TrashPage QScrollArea,
+#TrashPage QScrollArea > QWidget > QWidget {
+    background: transparent;
+    border: none;
+}
+
+#trashCard {
+    background: #161b22;
+    border: 1px solid #4a1c1c;
+    border-radius: 8px;
+}
+
+#trashCardBadge {
+    background: #3f1c1c;
+    color: #fca5a5;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 4px;
+}
+
+#trashCardName {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f0f6fc;
+}
+
+#trashCardDesc {
+    font-size: 12px;
+    color: #8b949e;
+}
+
+#trashCardMeta {
+    font-size: 11px;
+    color: #484f58;
+}
+
+#trashRestoreBtn {
+    background: #0d2a1a;
+    color: #4ade80;
+    border: 1px solid #166534;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    min-width: 60px;
+}
+
+#trashRestoreBtn:hover {
+    background: #14532d;
+    color: #86efac;
+    border-color: #4ade80;
+}
+
+#trashDeleteBtn {
+    background: #2d1515;
+    color: #f87171;
+    border: 1px solid #7f1d1d;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 10px;
+    min-width: 60px;
+}
+
+#trashDeleteBtn:hover {
+    background: #450a0a;
+    color: #fca5a5;
+    border-color: #b91c1c;
+}
+
+#trashCountLabel {
+    font-size: 13px;
+    color: #8b949e;
+    font-weight: 500;
+}
+
+#trashEmptyLabel {
+    font-size: 14px;
+    color: #484f58;
 }

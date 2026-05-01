@@ -92,6 +92,14 @@ class ScriptRunWorker(QThread):
     finished_ok  = pyqtSignal()
     finished_err = pyqtSignal(int)  # exit code
 
+    _PATH_TYPES = {".xlsx", ".xls", ".csv", "directory"}
+
+    # All pathlib constructors that produce Path-like objects
+    _PATH_CALL_NAMES = {
+        "Path", "PurePath", "PurePosixPath", "PureWindowsPath",
+        "PosixPath", "WindowsPath",
+    }
+
     def __init__(self, python: str, script_path: str, env: dict, variables: dict | None = None) -> None:
         super().__init__()
         self._python      = python
@@ -101,8 +109,129 @@ class ScriptRunWorker(QThread):
         self._proc: subprocess.Popen | None = None
         self._runtime_script_path: Path | None = None
 
-    def _value_literal(self, value: object) -> str:
-        return repr(str(value)) if isinstance(value, Path) else repr(value)
+    def _line_offsets(self, source: str) -> list[int]:
+        offsets = [0]
+        for line in source.splitlines(keepends=True):
+            offsets.append(offsets[-1] + len(line))
+        return offsets
+
+    def _source_span(self, node: ast.AST, offsets: list[int]) -> tuple[int, int] | None:
+        required = ("lineno", "col_offset", "end_lineno", "end_col_offset")
+        if any(getattr(node, attr, None) is None for attr in required):
+            return None
+        start = offsets[getattr(node, "lineno") - 1] + getattr(node, "col_offset")
+        end = offsets[getattr(node, "end_lineno") - 1] + getattr(node, "end_col_offset")
+        return start, end
+
+    def _targets_include_name(self, target: ast.AST, name: str) -> bool:
+        if isinstance(target, ast.Name):
+            return target.id == name
+        if isinstance(target, (ast.Tuple, ast.List)):
+            return any(self._targets_include_name(elt, name) for elt in target.elts)
+        return False
+
+    def _classify_rhs(self, node: ast.expr) -> str:
+        """
+        Classify how a path variable is declared so the injection can mirror it.
+
+        Returns one of:
+          "bare_string"  — plain/raw string literal or f-string
+          "path_wrapped" — Path(...), pathlib.Path(...), PurePath(...), etc.
+          "os_path"      — os.path.join/abspath/..., os.getenv, environ.get
+          "other"        — anything else (bin-op, ternary, variable, ...)
+        """
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            return "bare_string"
+        if isinstance(node, ast.JoinedStr):  # f-string
+            return "bare_string"
+        if isinstance(node, ast.Call):
+            func = node.func
+            # Bare name: Path(...), PurePath(...), etc.
+            if isinstance(func, ast.Name) and func.id in self._PATH_CALL_NAMES:
+                return "path_wrapped"
+            if isinstance(func, ast.Attribute):
+                # Attribute access: pathlib.Path(...), pathlib.PurePath(...), etc.
+                if func.attr in self._PATH_CALL_NAMES:
+                    return "path_wrapped"
+                # os.path.join(...), os.path.abspath(...), etc.
+                if (
+                    isinstance(func.value, ast.Attribute)
+                    and func.value.attr == "path"
+                    and isinstance(func.value.value, ast.Name)
+                    and func.value.value.id == "os"
+                ):
+                    return "os_path"
+                # os.getenv(...) or environ.get(...)
+                if isinstance(func.value, ast.Name) and func.value.id in {"os", "environ"} and func.attr in {"getenv", "get"}:
+                    return "os_path"
+        return "other"
+
+    def _build_injection_expr(self, var_name: str, original_rhs: ast.expr | None) -> str:
+        """
+        Build the Python expression string to inject for a variable.
+
+        For path variables the injection MIRRORS the original declaration pattern:
+          - bare string  → inject as string constant      (preserves str behaviour)
+          - Path(...)    → inject as Path(new_val)        (preserves Path behaviour)
+          - os.path(...) → inject as string constant      (simplifies to resolved str)
+          - other        → falls back to Path(new_val)
+
+        For config/non-path variables the declared type drives the injection.
+        """
+        spec = self._variables.get(var_name, {})
+        value = spec.get("value")
+        declared_type = str(spec.get("type", "")).strip()
+        category = str(spec.get("category", "")).strip().lower()
+        type_lower = declared_type.lower()
+
+        is_path = category in {"input", "output"} and type_lower in {t.lower() for t in self._PATH_TYPES}
+
+        if is_path and original_rhs is not None:
+            pattern = self._classify_rhs(original_rhs)
+
+            if pattern == "bare_string":
+                return repr(str(value))
+
+            if pattern == "path_wrapped":
+                func = getattr(original_rhs, "func", None)
+                if isinstance(func, ast.Name):
+                    return f"{func.id}({value!r})"
+                if isinstance(func, ast.Attribute):
+                    return f"{ast.unparse(func)}({value!r})"
+                return f"__import__('pathlib').Path({value!r})"
+
+            if pattern == "os_path":
+                # Simplify complex os.path calls to a plain resolved string
+                return repr(str(value))
+
+            # "other" (ternary, concat, variable ref, ...) → safe Path default
+            return f"__import__('pathlib').Path({value!r})"
+
+        if is_path:
+            return f"__import__('pathlib').Path({value!r})"
+
+        # Non-path variables: use declared metadata type
+        if type_lower == "bool":
+            v = value if isinstance(value, bool) else str(value).strip().lower() not in {"false", "0", ""}
+            return repr(v)
+        if type_lower == "int":
+            return repr(int(value))
+        if type_lower == "float":
+            return repr(float(value))
+
+        return repr(str(value))
+
+    def _pattern_label(self, pattern: str, rhs_node: ast.expr | None) -> str:
+        """Human-readable label for a detected pattern (used in the execution log)."""
+        if pattern == "bare_string":
+            return "f-string" if isinstance(rhs_node, ast.JoinedStr) else "bare string"
+        if pattern == "path_wrapped":
+            if isinstance(rhs_node, ast.Call):
+                return f"{ast.unparse(rhs_node.func)}()-wrapped"
+            return "Path()-wrapped"
+        if pattern == "os_path":
+            return "os.path-based"
+        return "complex expression"
 
     def _build_runtime_script(self) -> Path:
         source_path = Path(self._script_path)
@@ -113,30 +242,115 @@ class ScriptRunWorker(QThread):
         except SyntaxError:
             raise
 
-        line_offsets = [0]
-        for line in source.splitlines(keepends=True):
-            line_offsets.append(line_offsets[-1] + len(line))
+        line_offsets = self._line_offsets(source)
 
-        replacements: list[tuple[int, int, str]] = []
+        # ── Pass 1: find the earliest assignment for each variable ──────────
+        # Used to determine the injection expression for Load-context replacements
+        # (when the variable is used inside an expression, not just assigned).
+        candidate_assigns: dict[str, list[tuple[int, ast.expr | None]]] = {v: [] for v in self._variables}
+
         for node in ast.walk(tree):
-            if not isinstance(node, ast.Name):
-                continue
-            if not isinstance(node.ctx, ast.Load):
-                continue
-            if node.id not in self._variables:
-                continue
-            if any(getattr(node, attr, None) is None for attr in ("lineno", "col_offset", "end_lineno", "end_col_offset")):
-                continue
+            lineno: int = getattr(node, "lineno", 0)
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    for var_name in self._variables:
+                        if self._targets_include_name(target, var_name):
+                            candidate_assigns[var_name].append((lineno, node.value))
+                            break
+            elif isinstance(node, ast.AnnAssign) and node.value is not None:
+                for var_name in self._variables:
+                    if self._targets_include_name(node.target, var_name):
+                        candidate_assigns[var_name].append((lineno, node.value))
+                        break
+            elif isinstance(node, ast.NamedExpr):  # walrus :=
+                for var_name in self._variables:
+                    if self._targets_include_name(node.target, var_name):
+                        candidate_assigns[var_name].append((lineno, node.value))
+                        break
 
-            start = line_offsets[node.lineno - 1] + node.col_offset
-            end = line_offsets[node.end_lineno - 1] + node.end_col_offset
-            replacements.append((start, end, self._value_literal(self._variables[node.id])))
+        # Build primary injection map (earliest-in-source assignment wins)
+        primary_injections: dict[str, str] = {}
+        found_at: dict[str, tuple[int, str]] = {}
+
+        for var_name in self._variables:
+            candidates = sorted(candidate_assigns[var_name], key=lambda x: x[0])
+            if candidates:
+                lineno, rhs_node = candidates[0]
+                primary_injections[var_name] = self._build_injection_expr(var_name, rhs_node)
+                pattern = self._classify_rhs(rhs_node) if rhs_node else "other"
+                found_at[var_name] = (lineno, self._pattern_label(pattern, rhs_node))
+            else:
+                primary_injections[var_name] = self._build_injection_expr(var_name, None)
+                found_at[var_name] = (0, "not found in source")
+
+        # Emit injection plan to the execution log so the user can see what's happening
+        for var_name, expr in primary_injections.items():
+            lineno, label = found_at[var_name]
+            loc = f"line {lineno}" if lineno else "not found"
+            self.line_output.emit(f"[Injector] '{var_name}' ({loc}, {label}) → {expr}")
+
+        # ── Pass 2: collect replacement spans ───────────────────────────────
+        replacements: list[tuple[int, int, str]] = []
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    for var_name in self._variables:
+                        if self._targets_include_name(target, var_name):
+                            # Per-occurrence detection: each assignment mirrors its OWN pattern
+                            expr = self._build_injection_expr(var_name, node.value)
+                            span = self._source_span(node.value, line_offsets)
+                            if span is not None:
+                                replacements.append((span[0], span[1], expr))
+                            break
+
+            elif isinstance(node, ast.AnnAssign) and node.value is not None:
+                for var_name in self._variables:
+                    if self._targets_include_name(node.target, var_name):
+                        expr = self._build_injection_expr(var_name, node.value)
+                        span = self._source_span(node.value, line_offsets)
+                        if span is not None:
+                            replacements.append((span[0], span[1], expr))
+                        break
+
+            elif isinstance(node, ast.AugAssign):
+                # x += something → replace whole statement with x = <injected>
+                for var_name in self._variables:
+                    if self._targets_include_name(node.target, var_name):
+                        span = self._source_span(node, line_offsets)
+                        if span is not None:
+                            replacements.append((span[0], span[1], f"{var_name} = {primary_injections[var_name]}"))
+                        break
+
+            elif isinstance(node, ast.NamedExpr):  # walrus :=
+                for var_name in self._variables:
+                    if self._targets_include_name(node.target, var_name):
+                        expr = self._build_injection_expr(var_name, node.value)
+                        span = self._source_span(node.value, line_offsets)
+                        if span is not None:
+                            replacements.append((span[0], span[1], expr))
+                        break
+
+            elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) and node.id in self._variables:
+                # Inline every usage of the variable so downstream expressions see the new value
+                span = self._source_span(node, line_offsets)
+                if span is not None:
+                    replacements.append((span[0], span[1], primary_injections[node.id]))
 
         if not replacements:
             return source_path
 
+        # Largest span wins when replacements overlap (e.g. RHS of an Assign that
+        # also contains a Load of another tracked variable)
+        filtered: list[tuple[int, int, str]] = []
+        for start, end, replacement in sorted(replacements, key=lambda item: (item[0], -(item[1] - item[0]))):
+            if any(es <= start and end <= ee for es, ee, _ in filtered):
+                continue
+            filtered = [item for item in filtered if not (start <= item[0] and item[1] <= end)]
+            filtered.append((start, end, replacement))
+
         rewritten = source
-        for start, end, replacement in sorted(replacements, reverse=True):
+        for start, end, replacement in sorted(filtered, reverse=True):
             rewritten = rewritten[:start] + replacement + rewritten[end:]
 
         temp_file = tempfile.NamedTemporaryFile(
