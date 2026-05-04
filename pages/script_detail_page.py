@@ -68,6 +68,9 @@ class ScriptDetailPage(QWidget):
     back_requested = pyqtSignal()
     view_source_requested = pyqtSignal(dict)
     run_requested = pyqtSignal(dict)
+    update_version_requested = pyqtSignal(dict)
+    rollback_requested = pyqtSignal(dict)
+    delete_version_requested = pyqtSignal(dict)
 
     def __init__(self) -> None:
         super().__init__()
@@ -96,9 +99,22 @@ class ScriptDetailPage(QWidget):
 
         self.update_btn = QPushButton("Update Script")
         self.update_btn.setObjectName("primaryButton")
+        self.update_btn.clicked.connect(lambda: self.update_version_requested.emit(self._script_data))
+
+        self.rollback_btn = QPushButton("Rollback")
+        self.rollback_btn.setObjectName("secondaryButton")
+        self.rollback_btn.setToolTip("View version history and switch to a previous version")
+        self.rollback_btn.clicked.connect(lambda: self.rollback_requested.emit(self._script_data))
+
+        self.delete_version_btn = QPushButton("Delete Version")
+        self.delete_version_btn.setObjectName("dangerGhostButton")
+        self.delete_version_btn.setToolTip("Trash the current version of this script")
+        self.delete_version_btn.clicked.connect(lambda: self.delete_version_requested.emit(self._script_data))
 
         header.addWidget(back_btn)
         header.addWidget(self.title_label, 1)
+        header.addWidget(self.delete_version_btn)
+        header.addWidget(self.rollback_btn)
         header.addWidget(self.run_btn)
         header.addWidget(self.update_btn)
 
@@ -163,12 +179,18 @@ class ScriptDetailPage(QWidget):
         layout.addWidget(desc_lbl)
         layout.addWidget(_divider())
 
-        layout.addLayout(_meta_row("UUID",          d.get("uuid", "")))
-        layout.addLayout(_meta_row("Version",       str(d.get("current_version", 1))))
-        layout.addLayout(_meta_row("Created At",    d.get("created_at", "")))
-        layout.addLayout(_meta_row("Last Run",      d.get("lastrun_time") or "Never"))
-        layout.addLayout(_meta_row("Last Updated",  d.get("lastupdated_datetime_stamp", "")))
-        layout.addLayout(_meta_row("Success Rate",  d.get("success_rate") or "—"))
+        current_ver = d.get("current_version", 1)
+        versions = d.get("versions", {})
+        active_count = sum(1 for v in versions.values() if not v.get("trashed"))
+        ver_created = versions.get(str(current_ver), {}).get("version_created_at", "")
+
+        layout.addLayout(_meta_row("UUID",             d.get("uuid", "")))
+        layout.addLayout(_meta_row("Version",          f"v{current_ver}  ({active_count} active version{'s' if active_count != 1 else ''})"))
+        layout.addLayout(_meta_row("Version Created",  ver_created or d.get("created_at", "")))
+        layout.addLayout(_meta_row("Script Created",   d.get("created_at", "")))
+        layout.addLayout(_meta_row("Last Run",         d.get("lastrun_time") or "Never"))
+        layout.addLayout(_meta_row("Last Updated",     d.get("lastupdated_datetime_stamp", "")))
+        layout.addLayout(_meta_row("Success Rate",     d.get("success_rate") or "—"))
 
     def _build_variables(self, d: dict) -> None:
         _, layout = _card(self._body_layout)

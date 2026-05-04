@@ -15,6 +15,8 @@ from PyQt6.QtWidgets import (
 from components import Navbar, Sidebar
 from pages import AddScriptPage, Page, ScriptDetailPage, ScriptViewerPage, ScriptsPage, HistoryPage, TrashPage
 from pages.script_run_dialog import ScriptRunDialog
+from pages.update_version_dialog import UpdateVersionDialog
+from pages.rollback_dialog import RollbackDialog
 from script_manager import ScriptManager
 
 
@@ -105,6 +107,7 @@ class MainWindow(QMainWindow):
 		self.scripts_page.view_script_requested.connect(self.open_script_detail)
 		self.scripts_page.run_script_requested.connect(self.open_script_runner)
 		self.sidebar.script_selected.connect(self.open_script_detail)
+		self.sidebar.folder_navigate_requested.connect(self._open_folder_in_scripts)
 		self.add_script_page.back_to_scripts.connect(self.open_scripts_page)
 		self.add_script_page.submit_requested.connect(self.handle_script_submission)
 		self.script_detail_page.back_requested.connect(
@@ -112,6 +115,9 @@ class MainWindow(QMainWindow):
 		)
 		self.script_detail_page.view_source_requested.connect(self.open_script_viewer)
 		self.script_detail_page.run_requested.connect(self.open_script_runner)
+		self.script_detail_page.update_version_requested.connect(self.open_update_version_dialog)
+		self.script_detail_page.rollback_requested.connect(self.open_rollback_dialog)
+		self.script_detail_page.delete_version_requested.connect(self.handle_delete_version)
 		self.script_viewer_page.back_requested.connect(
 			lambda: self.pages.setCurrentWidget(self.script_detail_page)
 		)
@@ -177,6 +183,68 @@ class MainWindow(QMainWindow):
 		self.script_viewer_page.load(script_data)
 		self.pages.setCurrentWidget(self.script_viewer_page)
 
+	def open_update_version_dialog(self, script_data: dict) -> None:
+		dialog = UpdateVersionDialog(script_data, self.script_manager, self)
+
+		def _on_version_added(updated: dict) -> None:
+			self.scripts_page.reload_scripts()
+			self.sidebar.reload()
+			self.script_detail_page.load(updated)
+
+		dialog.version_added.connect(_on_version_added)
+		dialog.exec()
+
+	def open_rollback_dialog(self, script_data: dict) -> None:
+		dialog = RollbackDialog(script_data, self.script_manager, self)
+
+		def _on_version_changed(updated: dict) -> None:
+			self.scripts_page.reload_scripts()
+			self.sidebar.reload()
+			self.script_detail_page.load(updated)
+
+		dialog.version_changed.connect(_on_version_changed)
+		dialog.exec()
+
+	def handle_delete_version(self, script_data: dict) -> None:
+		script_uuid = script_data.get("uuid")
+		current_ver = script_data.get("current_version", 1)
+		versions = script_data.get("versions", {})
+		active_count = sum(1 for v in versions.values() if not v.get("trashed"))
+
+		if active_count <= 1:
+			confirm = QMessageBox.question(
+				self, "Delete Version",
+				"This is the only active version. The script will be moved to trash. Continue?",
+				QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
+			)
+			if confirm != QMessageBox.StandardButton.Yes:
+				return
+			try:
+				self.script_manager.delete_script(script_uuid)
+			except Exception as exc:
+				QMessageBox.critical(self, "Error", str(exc))
+				return
+			self.scripts_page.reload_scripts()
+			self.sidebar.reload()
+			self.pages.setCurrentWidget(self.scripts_page)
+		else:
+			confirm = QMessageBox.question(
+				self, "Delete Version",
+				f"Move version {current_ver} to trash?\n"
+				"The script will switch to the latest remaining version.",
+				QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
+			)
+			if confirm != QMessageBox.StandardButton.Yes:
+				return
+			try:
+				updated = self.script_manager.delete_version(script_uuid, current_ver)
+			except Exception as exc:
+				QMessageBox.critical(self, "Error", str(exc))
+				return
+			self.scripts_page.reload_scripts()
+			self.sidebar.reload()
+			self.script_detail_page.load(updated)
+
 	def open_script_runner(self, script_data: dict) -> None:
 		dialog = ScriptRunDialog(script_data, self.script_manager, self)
 
@@ -188,6 +256,11 @@ class MainWindow(QMainWindow):
 
 		dialog.script_updated.connect(_on_script_updated)
 		dialog.exec()
+
+	def _open_folder_in_scripts(self, folder_id) -> None:
+		self.navbar.set_active_tab(1)
+		self.pages.setCurrentWidget(self.scripts_page)
+		self.scripts_page.navigate_to(folder_id)
 
 	def toggle_sidebar(self):
 		self.sidebar.setVisible(not self.sidebar.isVisible())

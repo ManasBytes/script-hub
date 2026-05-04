@@ -13,14 +13,12 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QPushButton,
     QScrollArea,
-    QSplitter,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
 
-from components import FolderTreeWidget
 from config import get_manifest_root
 from directory_manager import DirectoryManager
 from registry import load_registry_entries
@@ -199,12 +197,10 @@ class ScriptMiniCard(QFrame):
         desc = script_data.get("description", "")
         self.setToolTip(f"{name}\n{desc}" if desc else name)
 
-        # ── Outer layout ───────────────────────────────────────────────────────
         main = QVBoxLayout(self)
         main.setContentsMargins(0, 0, 0, 0)
         main.setSpacing(0)
 
-        # Content area (icon + name)
         content = QWidget()
         content.setObjectName("miniCardContent")
         c_layout = QVBoxLayout(content)
@@ -228,7 +224,6 @@ class ScriptMiniCard(QFrame):
         c_layout.addWidget(name_lbl)
         c_layout.addStretch()
 
-        # Action bar (0 height until hover)
         self.action_bar = QWidget()
         self.action_bar.setObjectName("miniCardActionBar")
         self.action_bar.setFixedHeight(0)
@@ -250,7 +245,6 @@ class ScriptMiniCard(QFrame):
         main.addWidget(content, 1)
         main.addWidget(self.action_bar)
 
-        # Checkbox overlay (top-left)
         self.checkbox = QCheckBox(self)
         self.checkbox.setObjectName("scriptSelectCheckbox")
         self.checkbox.setGeometry(5, 5, 16, 16)
@@ -410,7 +404,6 @@ class ScriptGridView(QScrollArea):
             card.show()
 
     def _show_grid_context_menu(self, pos):
-        # Suppress menu if click landed on a card (card will handle its own menu)
         for card in self._all_cards:
             if card.geometry().contains(pos):
                 return
@@ -477,7 +470,7 @@ class ScriptsPage(QWidget):
         outer.setContentsMargins(32, 24, 32, 16)
         outer.setSpacing(10)
 
-        # ── Header ─────────────────────────────────────────────────────────────
+        # ── Header ─────────────────────────────────────────────────────────
         title = QLabel("Scripts")
         title.setObjectName("pageTitle")
 
@@ -499,37 +492,24 @@ class ScriptsPage(QWidget):
         header.addWidget(add_btn)
         outer.addLayout(header)
 
-        # ── Splitter ────────────────────────────────────────────────────────────
-        splitter = QSplitter(Qt.Orientation.Horizontal)
-        splitter.setObjectName("scriptsSplitter")
-        splitter.setChildrenCollapsible(False)
-
-        # Left: folder tree
-        self.folder_tree = FolderTreeWidget(get_manifest_root())
-        self.folder_tree.setMinimumWidth(140)
-        self.folder_tree.setMaximumWidth(300)
-        self.folder_tree.folder_selected.connect(self._on_folder_tree_selected)
-        self.folder_tree.tree_changed.connect(self._on_tree_changed)
-        splitter.addWidget(self.folder_tree)
-
-        # Right: breadcrumb + search + grid
-        right = QWidget()
-        right.setObjectName("scriptsRightPanel")
-        right_layout = QVBoxLayout(right)
-        right_layout.setContentsMargins(14, 0, 0, 0)
-        right_layout.setSpacing(8)
-
+        # ── Breadcrumb ──────────────────────────────────────────────────────
         self.breadcrumb = BreadcrumbBar()
         self.breadcrumb.crumb_clicked.connect(self._on_crumb_clicked)
+        outer.addWidget(self.breadcrumb)
 
+        # ── Search ──────────────────────────────────────────────────────────
         self.search_input = QLineEdit()
         self.search_input.setObjectName("scriptsSearch")
         self.search_input.setPlaceholderText("Search scripts by name or description…")
         self.search_input.textChanged.connect(self._load_grid)
+        outer.addWidget(self.search_input)
 
+        # ── Meta ────────────────────────────────────────────────────────────
         self.meta_label = QLabel("")
         self.meta_label.setObjectName("scriptsMeta")
+        outer.addWidget(self.meta_label)
 
+        # ── Grid ────────────────────────────────────────────────────────────
         self.grid_view = ScriptGridView(self.run_script, self.view_script)
         self.grid_view.folder_opened.connect(self._navigate_to)
         self.grid_view.selection_changed.connect(self._update_delete_button)
@@ -540,41 +520,30 @@ class ScriptsPage(QWidget):
         self.grid_view.folder_move_requested.connect(self._open_move_folder_dialog)
         self.grid_view.script_moved.connect(self._move_script)
         self.grid_view.script_move_requested.connect(self._open_move_script_dialog)
-
-        right_layout.addWidget(self.breadcrumb)
-        right_layout.addWidget(self.search_input)
-        right_layout.addWidget(self.meta_label)
-        right_layout.addWidget(self.grid_view, 1)
-
-        splitter.addWidget(right)
-        splitter.setSizes([200, 600])
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
-        outer.addWidget(splitter, 1)
+        outer.addWidget(self.grid_view, 1)
 
         self.reload_scripts()
 
-    # ── Data / navigation ─────────────────────────────────────────────────────
+    # ── Public API ────────────────────────────────────────────────────────
+
+    def navigate_to(self, folder_id: str | None) -> None:
+        """Navigate to a specific folder (called from the global sidebar)."""
+        self._navigate_to(folder_id)
+
+    # ── Data / navigation ─────────────────────────────────────────────────
 
     def reload_scripts(self):
         manifest_root = get_manifest_root()
-        self.folder_tree.set_manifest_root(manifest_root)
-        self.folder_tree.reload()
         all_entries = load_registry_entries(manifest_root)
         DirectoryManager(manifest_root).migrate_orphans([e["uuid"] for e in all_entries])
-        self._navigate_to(self._current_folder_id, rebuild_tree=False)
+        self._navigate_to(self._current_folder_id)
 
-    def _navigate_to(self, folder_id, rebuild_tree: bool = True):
-        # Verify folder still exists; fall back to root if not
+    def _navigate_to(self, folder_id):
         if folder_id is not None:
             if DirectoryManager(get_manifest_root()).get_folder_name(folder_id) is None:
                 folder_id = None
 
         self._current_folder_id = folder_id
-
-        if rebuild_tree:
-            self.folder_tree.select_folder(folder_id)
-
         path = DirectoryManager(get_manifest_root()).get_folder_path(folder_id)
         self.breadcrumb.set_path(path)
         self._load_grid()
@@ -587,7 +556,6 @@ class ScriptsPage(QWidget):
         dm = DirectoryManager(manifest_root)
 
         if query:
-            # Search hides folders; searches within current folder context (or all if at root)
             if self._current_folder_id is None:
                 scripts = [s for s in all_entries
                            if query in s.get("name", "").lower()
@@ -616,17 +584,10 @@ class ScriptsPage(QWidget):
                 parts.append(f"{len(scripts)} script{'s' if len(scripts) != 1 else ''}")
             self.meta_label.setText("  ·  ".join(parts) if parts else "Empty")
 
-    # ── Slots ─────────────────────────────────────────────────────────────────
-
-    def _on_folder_tree_selected(self, folder_id) -> None:
-        self._navigate_to(folder_id, rebuild_tree=False)
+    # ── Slots ─────────────────────────────────────────────────────────────
 
     def _on_crumb_clicked(self, folder_id) -> None:
-        self._navigate_to(folder_id, rebuild_tree=True)
-
-    def _on_tree_changed(self) -> None:
-        self._navigate_to(self._current_folder_id, rebuild_tree=False)
-        self.scripts_changed.emit()
+        self._navigate_to(folder_id)
 
     def _on_add_clicked(self) -> None:
         self.add_requested.emit(self._current_folder_id)
@@ -687,11 +648,9 @@ class ScriptsPage(QWidget):
         except ValueError as exc:
             QMessageBox.warning(self, "Cannot Move", str(exc))
             return
-        # If we navigated into the moved folder's subtree, go to target instead
         if self._current_folder_id == folder_id:
             self._current_folder_id = target
-        self.folder_tree.reload()
-        self._navigate_to(self._current_folder_id, rebuild_tree=False)
+        self._navigate_to(self._current_folder_id)
         self.scripts_changed.emit()
 
     def _new_subfolder(self):
@@ -699,8 +658,7 @@ class ScriptsPage(QWidget):
         if not ok or not name.strip():
             return
         DirectoryManager(get_manifest_root()).add_folder(self._current_folder_id, name.strip())
-        self.folder_tree.reload()
-        self._navigate_to(self._current_folder_id, rebuild_tree=False)
+        self._navigate_to(self._current_folder_id)
         self.scripts_changed.emit()
 
     def _rename_folder(self, folder_id: str):
@@ -710,8 +668,7 @@ class ScriptsPage(QWidget):
         if not ok or not name.strip() or name.strip() == old_name:
             return
         dm.rename_folder(folder_id, name.strip())
-        self.folder_tree.reload()
-        self._navigate_to(self._current_folder_id, rebuild_tree=False)
+        self._navigate_to(self._current_folder_id)
         self.scripts_changed.emit()
 
     def _delete_folder(self, folder_id: str):
@@ -726,8 +683,7 @@ class ScriptsPage(QWidget):
         if self._current_folder_id == folder_id:
             self._current_folder_id = None
         DirectoryManager(get_manifest_root()).delete_folder(folder_id)
-        self.folder_tree.reload()
-        self._navigate_to(self._current_folder_id, rebuild_tree=False)
+        self._navigate_to(self._current_folder_id)
         self.scripts_changed.emit()
 
     def run_script(self, script_data: dict) -> None:

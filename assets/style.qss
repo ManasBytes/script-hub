@@ -93,53 +93,97 @@ QMainWindow, #appRoot {
     border-color: #2563eb;
 }
 
-/* ── Sidebar ────────────────────────────────────────────────────────────── */
+/* ── Explorer Sidebar ────────────────────────────────────────────────────── */
 
 #sidebar {
-    background: #ffffff;
-    min-width: 248px;
-    max-width: 248px;
+    background: #f5f8fc;
+    min-width: 260px;
+    max-width: 260px;
     border-right: 1px solid #d1d9e6;
 }
 
+#sidebarHeader {
+    background: #f5f8fc;
+    border-bottom: 1px solid #e8edf5;
+}
+
 #sidebarTitle {
-    color: #0f172a;
-    font-size: 15px;
-    font-weight: 700;
-}
-
-#sidebarSubtitle {
-    color: #5c6b82;
+    color: #4a5568;
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 700;
+    letter-spacing: 0.8px;
 }
 
-#scriptList {
-    background: #ffffff;
-    color: #1e293b;
+#sidebarCollapseAllBtn {
+    background: #f5f8fc;
+    color: #64748b;
     border: none;
-    padding: 2px;
-    outline: none;
+    border-radius: 4px;
+    font-size: 14px;
+    padding: 0px;
 }
 
-#scriptList::item {
-    border-radius: 8px;
-    padding: 9px 10px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #334155;
-    background: #ffffff;
-}
-
-#scriptList::item:hover {
+#sidebarCollapseAllBtn:hover {
     background: #e8edf5;
     color: #0f172a;
 }
 
-#scriptList::item:selected {
-    background: #dbeafe;
-    color: #1d4ed8;
-    font-weight: 600;
+#explorerScroll {
+    background: #f5f8fc;
+    border: none;
+}
+
+#explorerContainer {
+    background: #f5f8fc;
+}
+
+#explorerFolderRow {
+    background: #f5f8fc;
+}
+
+#explorerFolderRow:hover {
+    background: #e8edf5;
+}
+
+#explorerScriptRow {
+    background: #f5f8fc;
+}
+
+#explorerScriptRow:hover {
+    background: #e8edf5;
+}
+
+#explorerToggleBtn {
+    background: #f5f8fc;
+    color: #64748b;
+    border: none;
+    font-size: 10px;
+    padding: 0px;
+    font-weight: 700;
+}
+
+#explorerToggleBtn:hover {
+    background: #d4ddf0;
+    color: #0f172a;
+    border-radius: 3px;
+}
+
+#explorerToggleBtn:disabled {
+    background: #f5f8fc;
+    color: #f5f8fc;
+    border: none;
+}
+
+#explorerIcon {
+    font-size: 14px;
+    background: transparent;
+    color: #334155;
+}
+
+#explorerItemName {
+    font-size: 13px;
+    color: #334155;
+    background: transparent;
 }
 
 /* ── Main content area ──────────────────────────────────────────────────── */
@@ -1195,4 +1239,27 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
 #trashEmptyLabel {
     font-size: 14px;
     color: #94a3b8;
+}
+
+/* ── Version control ─────────────────────────────────────────────────────── */
+
+#versionActiveBadge {
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 10px;
+    padding: 2px 10px;
+}
+
+#RollbackDialog #contentCard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+#UpdateVersionDialog #contentCard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
 }

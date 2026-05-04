@@ -276,3 +276,65 @@ in that the hierarchy of the folders and the scripts in it would be kept.
 so for example we can have folders and the scripts inside it as a list of dictionary.
 
 figure out how this can be done and immpllement it. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+uv ur
+
+
+
+
+
+
+
+
+
+
+
+version control
+
+
+what i want to acheive
+i want you to make the version control system for these scripts.
+So there would be three things, one is update script button, on which i can upload a new script and that would be used  forlike the new version ... again that entire things would go for this to check for all the innput variables config variables and output variabes.,. (like new values addition would be allowed but previous values of the variables would be prefilled)
+
+second there would be a option called roll back -> in that all the versions of that particular script would be  shown, and you can choose the version you want to use and then that version of the script would be used when you run it
+
+in the ui this would be shown properly that this is the version thaat is currently choosen.
+
+
+deletion of the version. in the view page of the script, there would be a delete version option, and on clicking on it, the current version would be trashed, and then if we restore it from the trash then this the script would be loaded to that exact version only in which it was trashed
+
+
+
+
+how can it be acheived
+this can be acheived by adding a versions dictionary in the registry of each script.
+all the details for each script like tghe config file the trashed or not the output variables the help file and everything would be stored in the basis of the versions only and in the current version,,,..only the version number would be given, then  i think you can understand how each of the feature i want to implement would be made. easily. 
+make this
+
+

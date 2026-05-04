@@ -67,5 +67,9 @@ class Navbar(QWidget):
             button.setChecked(i == idx)
         switch_page_callback(idx)
 
+    def set_active_tab(self, index: int) -> None:
+        for i, btn in enumerate(self._tab_buttons):
+            btn.setChecked(i == index)
+
     def set_theme_label(self, text: str) -> None:
         self.theme_button.setText(text)

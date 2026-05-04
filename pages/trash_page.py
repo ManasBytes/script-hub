@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
 
 from config import get_manifest_root
 from directory_manager import DirectoryManager
-from registry import load_registry_entries
+from registry import load_registry_entries, load_trashed_version_entries
 from script_manager import ScriptManager
 
 
@@ -48,11 +48,13 @@ class TrashItemCard(QFrame):
         self.entry = entry
         self.setObjectName("trashCard")
 
+        is_version = entry.get("_is_version_trash", False)
+
         outer = QVBoxLayout(self)
         outer.setContentsMargins(14, 10, 14, 10)
         outer.setSpacing(5)
 
-        # ── Top row: checkbox · PY badge · name · buttons ─────────────────────
+        # ── Top row: checkbox · badge · name · buttons ────────────────────────
         top = QHBoxLayout()
         top.setSpacing(10)
         top.setContentsMargins(0, 0, 0, 0)
@@ -60,13 +62,20 @@ class TrashItemCard(QFrame):
         self.checkbox = QCheckBox()
         top.addWidget(self.checkbox)
 
-        badge = QLabel("PY")
+        if is_version:
+            badge_text = f"V{entry.get('version_num', '?')}"
+            name_text = f"{entry.get('name', 'Unnamed')}  —  Version {entry.get('version_num', '?')}"
+        else:
+            badge_text = "PY"
+            name_text = entry.get("name", "Unnamed")
+
+        badge = QLabel(badge_text)
         badge.setObjectName("trashCardBadge")
         badge.setFixedSize(28, 20)
         badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
         top.addWidget(badge)
 
-        name_lbl = QLabel(entry.get("name", "Unnamed"))
+        name_lbl = QLabel(name_text)
         name_lbl.setObjectName("trashCardName")
         top.addWidget(name_lbl, 1)
 
@@ -93,11 +102,14 @@ class TrashItemCard(QFrame):
             desc_lbl.setMaximumHeight(34)
             outer.addWidget(desc_lbl)
 
-        # ── Meta: original location · trashed date ────────────────────────────
-        folder_id = entry.get("trashed_from_folder")
-        location = _folder_breadcrumb(manifest_root, folder_id)
+        # ── Meta: location (for scripts) · trashed date ───────────────────────
         trashed_at = _fmt_ts(entry.get("trashed_at", ""))
-        meta_lbl = QLabel(f"📁  {location}     ·     Trashed: {trashed_at}")
+        if is_version:
+            meta_lbl = QLabel(f"Version trashed: {trashed_at}")
+        else:
+            folder_id = entry.get("trashed_from_folder")
+            location = _folder_breadcrumb(manifest_root, folder_id)
+            meta_lbl = QLabel(f"📁  {location}     ·     Trashed: {trashed_at}")
         meta_lbl.setObjectName("trashCardMeta")
         outer.addWidget(meta_lbl)
 
@@ -193,15 +205,17 @@ class TrashPage(QWidget):
 
         manifest_root = get_manifest_root()
         entries = load_registry_entries(manifest_root, include_trashed=True)
-        trashed = [e for e in entries if e.get("trashed")]
+        trashed_scripts = [e for e in entries if e.get("trashed")]
+        trashed_versions = load_trashed_version_entries(manifest_root)
+        all_trashed = trashed_scripts + trashed_versions
 
-        if not trashed:
+        if not all_trashed:
             empty_lbl = QLabel("Trash is empty.")
             empty_lbl.setObjectName("trashEmptyLabel")
             empty_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self._container_layout.addWidget(empty_lbl)
         else:
-            for entry in trashed:
+            for entry in all_trashed:
                 card = TrashItemCard(entry, manifest_root)
                 card.restore_clicked.connect(self._restore_one)
                 card.delete_clicked.connect(self._delete_one)
@@ -235,7 +249,10 @@ class TrashPage(QWidget):
 
     def _restore_one(self, entry: dict):
         try:
-            self._script_manager.restore_script(entry.get("uuid"))
+            if entry.get("_is_version_trash"):
+                self._script_manager.restore_version(entry["uuid"], entry["version_num"])
+            else:
+                self._script_manager.restore_script(entry.get("uuid"))
         except Exception as exc:
             QMessageBox.warning(self, "Restore Failed", str(exc))
             return
@@ -243,7 +260,10 @@ class TrashPage(QWidget):
         self.request_refresh.emit()
 
     def _delete_one(self, entry: dict):
-        name = entry.get("name", entry.get("uuid", ""))
+        if entry.get("_is_version_trash"):
+            name = f"Version {entry.get('version_num')} of {entry.get('name', '')}"
+        else:
+            name = entry.get("name", entry.get("uuid", ""))
         confirm = QMessageBox.question(
             self, "Delete Permanently",
             f"Permanently delete '{name}'?\nThis cannot be undone.",
@@ -252,7 +272,10 @@ class TrashPage(QWidget):
         if confirm != QMessageBox.StandardButton.Yes:
             return
         try:
-            self._script_manager.permanently_delete_script(entry.get("uuid"))
+            if entry.get("_is_version_trash"):
+                self._script_manager.permanently_delete_version(entry["uuid"], entry["version_num"])
+            else:
+                self._script_manager.permanently_delete_script(entry.get("uuid"))
         except Exception as exc:
             QMessageBox.warning(self, "Delete Failed", str(exc))
             return
@@ -266,7 +289,10 @@ class TrashPage(QWidget):
         errors = []
         for entry in selected:
             try:
-                self._script_manager.restore_script(entry.get("uuid"))
+                if entry.get("_is_version_trash"):
+                    self._script_manager.restore_version(entry["uuid"], entry["version_num"])
+                else:
+                    self._script_manager.restore_script(entry.get("uuid"))
             except Exception as exc:
                 errors.append(f"{entry.get('name')}: {exc}")
         if errors:
@@ -287,10 +313,14 @@ class TrashPage(QWidget):
             return
         errors = []
         for card in self._cards:
+            entry = card.entry
             try:
-                self._script_manager.permanently_delete_script(card.entry.get("uuid"))
+                if entry.get("_is_version_trash"):
+                    self._script_manager.permanently_delete_version(entry["uuid"], entry["version_num"])
+                else:
+                    self._script_manager.permanently_delete_script(entry.get("uuid"))
             except Exception as exc:
-                errors.append(f"{card.entry.get('name')}: {exc}")
+                errors.append(f"{entry.get('name')}: {exc}")
         if errors:
             QMessageBox.warning(self, "Partial Delete", "\n".join(errors))
         self.reload()
