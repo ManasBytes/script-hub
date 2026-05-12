@@ -54,6 +54,7 @@ class ScriptManager:
             "total_runs": 0,
             "successful_runs": 0,
             "current_version": 1,
+            "environment_refs": payload.get("environment_refs", []),
             "versions": {
                 "1": {
                     "file_uuid": file_uuid_v1,
@@ -125,6 +126,10 @@ class ScriptManager:
         new_name = payload.get("name", "").strip()
         if new_name:
             entry["name"] = new_name
+
+        if "environment_refs" in payload:
+            entry["environment_refs"] = payload.get("environment_refs", [])
+        entry.setdefault("environment_refs", [])
 
         write_registry_entry(self.manifest_root, entry)
         inject_current_version_fields(self.manifest_root, entry)
@@ -330,6 +335,35 @@ class ScriptManager:
         except Exception:
             pass
 
+        inject_current_version_fields(self.manifest_root, entry)
+        return entry
+
+    def get_script_environment_refs(self, script_uuid: str) -> list[str]:
+        registry_path = registry_file_path(self.manifest_root, script_uuid)
+        if not registry_path.exists():
+            return []
+
+        try:
+            entry = json.loads(registry_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return []
+
+        refs = entry.get("environment_refs", [])
+        return [str(ref).strip() for ref in refs if str(ref).strip()]
+
+    def set_script_environment_refs(self, script_uuid: str, environment_refs: list[str]) -> dict:
+        registry_path = registry_file_path(self.manifest_root, script_uuid)
+        if not registry_path.exists():
+            raise FileNotFoundError(f"Registry entry not found for script {script_uuid}")
+
+        try:
+            entry = json.loads(registry_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise ValueError(f"Invalid registry entry for script {script_uuid}") from exc
+
+        entry["environment_refs"] = [str(ref).strip() for ref in environment_refs if str(ref).strip()]
+        entry["lastupdated_datetime_stamp"] = utc_now_iso()
+        write_registry_entry(self.manifest_root, entry)
         inject_current_version_fields(self.manifest_root, entry)
         return entry
 

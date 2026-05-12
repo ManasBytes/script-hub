@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
 	QApplication,
 	QHBoxLayout,
 	QMainWindow,
+	QDialog,
 	QMessageBox,
 	QStackedWidget,
 	QVBoxLayout,
@@ -17,6 +18,9 @@ from pages import AddScriptPage, Page, ScriptDetailPage, ScriptViewerPage, Scrip
 from pages.script_run_dialog import ScriptRunDialog
 from pages.update_version_dialog import UpdateVersionDialog
 from pages.rollback_dialog import RollbackDialog
+from dialogs.environment_selector_dialog import EnvironmentSelectorDialog
+from dialogs.environment_manager_dialog import EnvironmentManagerDialog
+from environment_manager import EnvironmentManager
 from script_manager import ScriptManager
 
 
@@ -81,9 +85,10 @@ class MainWindow(QMainWindow):
 		root_layout.setContentsMargins(0, 0, 0, 0)
 		root_layout.setSpacing(0)
 
-		self.navbar = Navbar(self.switch_page, self.toggle_sidebar, self.toggle_theme)
+		self.navbar = Navbar(self.switch_page, self.toggle_sidebar, self.toggle_theme, self.open_environment_manager)
 		self.sidebar = Sidebar()
 		self.script_manager = ScriptManager()
+		self.environment_manager = EnvironmentManager(self.script_manager.manifest_root)
 
 		self.pages = QStackedWidget()
 		self.pages.setObjectName("mainContent")
@@ -118,6 +123,7 @@ class MainWindow(QMainWindow):
 		self.script_detail_page.update_version_requested.connect(self.open_update_version_dialog)
 		self.script_detail_page.rollback_requested.connect(self.open_rollback_dialog)
 		self.script_detail_page.delete_version_requested.connect(self.handle_delete_version)
+		self.script_detail_page.environments_requested.connect(self.open_environment_editor)
 		self.script_viewer_page.back_requested.connect(
 			lambda: self.pages.setCurrentWidget(self.script_detail_page)
 		)
@@ -178,6 +184,34 @@ class MainWindow(QMainWindow):
 	def open_script_detail(self, script_data: dict) -> None:
 		self.script_detail_page.load(script_data)
 		self.pages.setCurrentWidget(self.script_detail_page)
+
+	def open_environment_editor(self, script_data: dict) -> None:
+		current_refs = [str(ref).strip() for ref in script_data.get("environment_refs", []) if str(ref).strip()]
+		dialog = EnvironmentSelectorDialog(self.environment_manager, current_refs, self)
+		if dialog.exec() != QDialog.DialogCode.Accepted:
+			return
+
+		try:
+			updated = self.script_manager.set_script_environment_refs(
+				script_data.get("uuid", ""),
+				dialog.selected_environment_refs(),
+			)
+		except Exception as exc:
+			QMessageBox.critical(self, "Environment Update Failed", str(exc))
+			return
+
+		self.scripts_page.reload_scripts()
+		self.sidebar.reload()
+		self.script_detail_page.load(updated)
+
+	def open_environment_manager(self) -> None:
+		dialog = EnvironmentManagerDialog(self.environment_manager, self)
+		dialog.environments_changed.connect(self._on_environments_changed)
+		dialog.exec()
+
+	def _on_environments_changed(self) -> None:
+		self.scripts_page.reload_scripts()
+		self.sidebar.reload()
 
 	def open_script_viewer(self, script_data: dict) -> None:
 		self.script_viewer_page.load(script_data)

@@ -9,6 +9,7 @@ from pathlib import Path
 from PyQt6.QtCore import QThread, pyqtSignal
 
 from analyzer import analyze_script
+from variable_substitution import substitute_template_text
 
 
 # ── Dependency helpers ────────────────────────────────────────────────────────
@@ -100,12 +101,20 @@ class ScriptRunWorker(QThread):
         "PosixPath", "WindowsPath",
     }
 
-    def __init__(self, python: str, script_path: str, env: dict, variables: dict | None = None) -> None:
+    def __init__(
+        self,
+        python: str,
+        script_path: str,
+        env: dict,
+        variables: dict | None = None,
+        template_values: dict | None = None,
+    ) -> None:
         super().__init__()
         self._python      = python
         self._script_path = script_path
         self._env         = env
         self._variables   = variables or {}
+        self._template_values = template_values or {}
         self._proc: subprocess.Popen | None = None
         self._runtime_script_path: Path | None = None
 
@@ -236,6 +245,8 @@ class ScriptRunWorker(QThread):
     def _build_runtime_script(self) -> Path:
         source_path = Path(self._script_path)
         source = source_path.read_text(encoding="utf-8")
+        if self._template_values:
+            source = substitute_template_text(source, self._template_values, strict=False)
 
         try:
             tree = ast.parse(source, filename=str(source_path))

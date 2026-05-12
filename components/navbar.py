@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton, QStyle
 
 
 class Navbar(QWidget):
-    def __init__(self, switch_page_callback, toggle_sidebar_callback, toggle_theme_callback):
+    def __init__(self, switch_page_callback, toggle_sidebar_callback, toggle_theme_callback, manage_environments_callback=None):
         super().__init__()
         self.setObjectName("navbar")
         layout = QHBoxLayout(self)
@@ -59,6 +59,12 @@ class Navbar(QWidget):
         layout.addStretch()
         layout.addLayout(tabs_wrap)
         layout.addStretch()
+        if manage_environments_callback:
+            env_btn = QPushButton("Environments")
+            env_btn.setObjectName("secondaryButton")
+            env_btn.setToolTip("Create, edit, and delete environments")
+            env_btn.clicked.connect(manage_environments_callback)
+            layout.addWidget(env_btn)
         layout.addWidget(self.theme_button)
         layout.addWidget(status)
 

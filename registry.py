@@ -10,8 +10,10 @@ def utc_now_iso() -> str:
 def ensure_manifest_layout(manifest_root: Path) -> tuple[Path, Path]:
     scripts_dir = manifest_root / "scripts"
     registry_dir = manifest_root / "registry"
+    environments_dir = manifest_root / "environments"
     scripts_dir.mkdir(parents=True, exist_ok=True)
     registry_dir.mkdir(parents=True, exist_ok=True)
+    environments_dir.mkdir(parents=True, exist_ok=True)
     return scripts_dir, registry_dir
 
 
@@ -71,6 +73,7 @@ def inject_current_version_fields(manifest_root: Path, entry: dict) -> dict:
     entry["output_variable"] = ver_data.get("output_variable", [])
     entry["dependencies"] = ver_data.get("dependencies", [])
     entry["help_file_path"] = ver_data.get("help_file_path", "")
+    entry["environment_refs"] = entry.get("environment_refs", [])
     entry["script_path"] = str(script_file_path(manifest_root, file_uuid))
     return entry
 

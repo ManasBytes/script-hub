@@ -2,9 +2,10 @@ import os
 import sys
 from pathlib import Path
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QCheckBox,
+    QCompleter,
     QDialog,
     QFileDialog,
     QFormLayout,
@@ -19,6 +20,8 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from environment_manager import EnvironmentManager
+from variable_substitution import substitute_template_value
 from script_manager import ScriptManager
 from workers import DepCheckWorker, DepInstallWorker, ScriptRunWorker
 
@@ -37,6 +40,7 @@ class ScriptRunDialog(QDialog):
 
         self._script_data = script_data
         self._script_manager = script_manager
+        self._environment_manager = EnvironmentManager(self._script_manager.manifest_root)
 
         self._dep_check_worker: DepCheckWorker | None = None
         self._dep_install_worker: DepInstallWorker | None = None
@@ -50,6 +54,11 @@ class ScriptRunDialog(QDialog):
         self._run_in_progress = False
         self._install_attempted = False
         self._runtime_values: dict[str, dict[str, object]] = {}
+        self._resolved_template_values: dict[str, object] = {}
+        self._template_variable_names = self._environment_manager.list_template_variable_names(
+            [str(ref) for ref in self._script_data.get("environment_refs", []) if str(ref).strip()]
+        )
+        self._template_tokens = [f"{{{{{name}}}}}" for name in self._template_variable_names]
 
         root = QVBoxLayout(self)
         root.setContentsMargins(16, 14, 16, 14)
@@ -170,6 +179,15 @@ class ScriptRunDialog(QDialog):
                 self._config_widgets[var_name] = (var_type, widget)
             else:
                 self._output_widgets[var_name] = (var_type, widget)
+
+            if isinstance(widget, QLineEdit) and self._template_tokens:
+                completer = QCompleter(self._template_tokens, self)
+                completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
+                completer.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
+                completer.setFilterMode(Qt.MatchFlag.MatchContains)
+                widget.setCompleter(completer)
+                if category == "Config":
+                    widget.setPlaceholderText("Enter value or {{variable_name}}")
 
             self.form_layout.addRow(label, widget)
 
@@ -322,17 +340,23 @@ class ScriptRunDialog(QDialog):
             f"Could not install required dependencies:\n\n{error}",
         )
 
-    def _collect_runtime_values(self) -> dict[str, dict[str, object]] | None:
+    def _collect_runtime_values(self, template_values: dict[str, object] | None = None) -> dict[str, dict[str, object]] | None:
         runtime_values: dict[str, dict[str, object]] = {}
+        template_values = template_values or {}
+
+        def apply_templates(raw: str) -> str:
+            if not raw:
+                return raw
+            return str(substitute_template_value(raw, template_values))
 
         def read_widget(widget: QWidget) -> str:
             if isinstance(widget, QLineEdit):
-                return widget.text().strip()
+                return apply_templates(widget.text().strip())
             if isinstance(widget, QCheckBox):
                 return "True" if widget.isChecked() else "False"
             line_edit = widget.findChild(QLineEdit)
             if line_edit is not None:
-                return line_edit.text().strip()
+                return apply_templates(line_edit.text().strip())
             return ""
 
         for var_name, (var_type, widget) in self._input_widgets.items():
@@ -399,6 +423,12 @@ class ScriptRunDialog(QDialog):
 
         return runtime_values
 
+    def _build_template_values(self, runtime_values: dict[str, dict[str, object]]) -> dict[str, object]:
+        template_values = self._environment_manager.resolve_for_script(self._script_data)
+        for var_name, payload in runtime_values.items():
+            template_values[var_name] = payload.get("value")
+        return template_values
+
     def _build_execution_env(self) -> dict:
         env = os.environ.copy()
 
@@ -422,12 +452,17 @@ class ScriptRunDialog(QDialog):
             QMessageBox.critical(self, "Missing Script", "Script file does not exist.")
             return
 
-        runtime_values = self._collect_runtime_values()
+        base_template_values = self._environment_manager.resolve_for_script(self._script_data)
+        runtime_values = self._collect_runtime_values(base_template_values)
         if runtime_values is None:
             return
 
         # Store runtime values for later use in logging
         self._runtime_values = runtime_values
+        self._resolved_template_values = self._build_template_values(runtime_values)
+
+        for var_name, payload in list(self._runtime_values.items()):
+            payload["value"] = substitute_template_value(payload.get("value"), self._resolved_template_values)
 
         env = self._build_execution_env()
 
@@ -438,7 +473,13 @@ class ScriptRunDialog(QDialog):
         self.dep_status_label.setText("Executing script in sandbox...")
         self._append_log("Starting script execution...")
 
-        self._run_worker = ScriptRunWorker(sys.executable, script_path, env, runtime_values)
+        self._run_worker = ScriptRunWorker(
+            sys.executable,
+            script_path,
+            env,
+            runtime_values,
+            self._resolved_template_values,
+        )
         self._run_worker.line_output.connect(self._append_log)
         self._run_worker.finished_ok.connect(self._on_run_ok)
         self._run_worker.finished_err.connect(self._on_run_err)

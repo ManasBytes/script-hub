@@ -12,6 +12,10 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from config import get_manifest_root
+from dialogs.environment_selector_dialog import EnvironmentSelectorDialog
+from environment_manager import EnvironmentManager
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Small helpers
@@ -71,11 +75,13 @@ class ScriptDetailPage(QWidget):
     update_version_requested = pyqtSignal(dict)
     rollback_requested = pyqtSignal(dict)
     delete_version_requested = pyqtSignal(dict)
+    environments_requested = pyqtSignal(dict)
 
     def __init__(self) -> None:
         super().__init__()
         self.setObjectName("ScriptDetailPage")
         self._script_data: dict = {}
+        self._environment_manager = EnvironmentManager(get_manifest_root())
 
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(32, 24, 32, 24)
@@ -97,6 +103,10 @@ class ScriptDetailPage(QWidget):
         self.run_btn.setObjectName("runScriptButton")
         self.run_btn.clicked.connect(self._emit_run_requested)
 
+        self.environments_btn = QPushButton("Environments")
+        self.environments_btn.setObjectName("secondaryButton")
+        self.environments_btn.clicked.connect(self._emit_environments_requested)
+
         self.update_btn = QPushButton("Update Script")
         self.update_btn.setObjectName("primaryButton")
         self.update_btn.clicked.connect(lambda: self.update_version_requested.emit(self._script_data))
@@ -116,6 +126,7 @@ class ScriptDetailPage(QWidget):
         header.addWidget(self.delete_version_btn)
         header.addWidget(self.rollback_btn)
         header.addWidget(self.run_btn)
+        header.addWidget(self.environments_btn)
         header.addWidget(self.update_btn)
 
         # ── Scrollable body ───────────────────────────────────────────────
@@ -146,6 +157,10 @@ class ScriptDetailPage(QWidget):
         if self._script_data:
             self.run_requested.emit(self._script_data)
 
+    def _emit_environments_requested(self) -> None:
+        if self._script_data:
+            self.environments_requested.emit(self._script_data)
+
     # ─────────────────────────────────────────────────────────────────────
     #  Body rebuild
     # ─────────────────────────────────────────────────────────────────────
@@ -161,6 +176,7 @@ class ScriptDetailPage(QWidget):
 
         self._build_overview(d)
         self._build_variables(d)
+        self._build_environments(d)
         self._build_dependencies(d)
         self._build_help(d)
         self._build_source()
@@ -204,6 +220,23 @@ class ScriptDetailPage(QWidget):
         cols.addWidget(self._var_section("Config Variables", d.get("config_variable", [])),  1)
         cols.addWidget(self._var_section("Output Variables", d.get("output_variable", [])),  1)
         layout.addLayout(cols)
+
+    def _build_environments(self, d: dict) -> None:
+        refs = [str(ref).strip() for ref in d.get("environment_refs", []) if str(ref).strip()]
+        _, layout = _card(self._body_layout)
+        layout.addWidget(_section_title("Environments"))
+
+        if not refs:
+            lbl = QLabel("No environments assigned to this script.")
+            lbl.setObjectName("detailMetaValue")
+            layout.addWidget(lbl)
+            return
+
+        for ref in refs:
+            row = QLabel(self._environment_manager.get_environment_label(ref))
+            row.setObjectName("detailMetaValue")
+            row.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+            layout.addWidget(row)
 
     def _var_section(self, title: str, variables: list) -> QFrame:
         frame = QFrame()

@@ -4,6 +4,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QComboBox,
     QCompleter,
+    QDialog,
     QFileDialog,
     QFrame,
     QHBoxLayout,
@@ -18,6 +19,9 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from config import get_manifest_root
+from dialogs.environment_selector_dialog import EnvironmentSelectorDialog
+from environment_manager import EnvironmentManager
 from workers import ScriptAnalysisWorker
 
 
@@ -144,6 +148,8 @@ class AddScriptPage(QWidget):
         self.setObjectName("AddScriptPage")
         self._detected_dependencies: list[str] = []
         self._analysis_worker: ScriptAnalysisWorker | None = None
+        self._environment_manager = EnvironmentManager(get_manifest_root())
+        self._environment_refs: list[str] = []
 
         self.step_titles = [
             "1. Upload Script",
@@ -294,6 +300,24 @@ class AddScriptPage(QWidget):
         self.script_description_input.setPlaceholderText("Write a short summary of what this script does")
         self.script_description_input.setFixedHeight(88)
 
+        env_label = QLabel("Environments (optional)")
+        env_label.setObjectName("sectionLabel")
+
+        env_row = QHBoxLayout()
+        env_row.setContentsMargins(0, 0, 0, 0)
+        env_row.setSpacing(8)
+
+        self.env_button = QPushButton("Choose Environments")
+        self.env_button.setObjectName("secondaryButton")
+        self.env_button.clicked.connect(self._choose_environments)
+
+        self.env_preview = QLabel("No environments selected.")
+        self.env_preview.setObjectName("hintText")
+        self.env_preview.setWordWrap(True)
+
+        env_row.addWidget(self.env_button)
+        env_row.addWidget(self.env_preview, 1)
+
         note = QLabel("Only Python script files with .py extension are supported.")
         note.setObjectName("hintText")
 
@@ -321,6 +345,8 @@ class AddScriptPage(QWidget):
         layout.addLayout(row)
         layout.addWidget(description_label)
         layout.addWidget(self.script_description_input)
+        layout.addWidget(env_label)
+        layout.addLayout(env_row)
         layout.addWidget(note)
         layout.addWidget(help_label)
         layout.addLayout(help_row)
@@ -424,6 +450,19 @@ class AddScriptPage(QWidget):
         if file_path:
             self.help_path_input.setText(file_path)
 
+    def _choose_environments(self) -> None:
+        dialog = EnvironmentSelectorDialog(self._environment_manager, self._environment_refs, self)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+
+        self._environment_refs = dialog.selected_environment_refs()
+        if not self._environment_refs:
+            self.env_preview.setText("No environments selected.")
+            return
+
+        labels = [self._environment_manager.get_environment_label(ref) for ref in self._environment_refs]
+        self.env_preview.setText(", ".join(labels))
+
     def prev_step(self):
         idx = self.steps.currentIndex()
         if idx > 0:
@@ -470,6 +509,7 @@ class AddScriptPage(QWidget):
             "config_variable": self.config_editor.get_pairs(),
             "output_variable": self.outputs_editor.get_pairs(),
             "dependencies": self._detected_dependencies,
+            "environment_refs": list(self._environment_refs),
         }
 
     # ------------------------------------------------------------------ #

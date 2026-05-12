@@ -14,7 +14,10 @@ def _default_manifest_root() -> Path:
 
 
 def load_settings() -> dict:
-    settings = {"manifest_root": str(_default_manifest_root())}
+    settings = {
+        "manifest_root": str(_default_manifest_root()),
+        "environment_master_key": "",
+    }
 
     if SETTINGS_FILE.exists():
         try:
@@ -43,3 +46,14 @@ def set_manifest_root(manifest_root: str | Path) -> Path:
     settings["manifest_root"] = str(resolved_root)
     save_settings(settings)
     return resolved_root
+
+
+def get_environment_master_key() -> str:
+    settings = load_settings()
+    return str(settings.get("environment_master_key", ""))
+
+
+def set_environment_master_key(master_key: str) -> None:
+    settings = load_settings()
+    settings["environment_master_key"] = str(master_key)
+    save_settings(settings)
